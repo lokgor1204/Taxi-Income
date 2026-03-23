@@ -21,54 +21,39 @@
         body {
             background-color: #0a0a0a;
             color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-font-smoothing: antialiased;
             touch-action: manipulation;
-            /* 允許選取輸入框，但不允許長按選取純文本 */
             user-select: none;
+            overflow-x: hidden;
         }
         .app-container {
             padding-top: calc(var(--safe-top) + 20px);
             padding-bottom: calc(var(--safe-bottom) + 40px);
         }
-        /* 確保輸入框在所有平台都可點擊且有文字 */
+        /* 強制輸入框樣式，解決部分手機顯示問題 */
         input {
             background-color: #1c1c1e !important;
-            border: 1px solid #2c2c2e !important;
+            border: 1px solid #3a3a3c !important;
             color: #ffffff !important;
             border-radius: 12px;
             user-select: text !important;
             -webkit-user-select: text !important;
+            opacity: 1 !important;
         }
-        input:focus {
-            border-color: #0a84ff !important;
-            outline: none;
+        input::placeholder {
+            color: #48484a;
         }
         .glass-card {
-            background: rgba(28, 28, 30, 0.9);
+            background: rgba(28, 28, 30, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .active-press:active {
-            transform: scale(0.96);
-            transition: transform 0.1s;
-        }
-        .bar-container {
-            height: 160px;
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            padding: 10px 0;
-        }
-        .bar-segment {
-            transition: height 0.4s ease-out;
-        }
-        /* 修正日期選擇器的隱形覆蓋問題 */
+        /* 日期選擇器熱區 */
         .date-picker-wrapper {
             position: relative;
-            display: inline-flex;
-            align-items: center;
+            display: inline-block;
         }
         #date-input {
             position: absolute;
@@ -76,26 +61,35 @@
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0;
-            z-index: 10;
+            opacity: 0 !important;
+            z-index: 20;
             cursor: pointer;
-            display: block;
+        }
+        .bar-container {
+            height: 140px;
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            padding-bottom: 5px;
+        }
+        .bar-segment {
+            transition: height 0.3s ease;
+        }
+        .active-press:active {
+            transform: scale(0.97);
+            opacity: 0.8;
         }
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
+            width: 0px;
         }
     </style>
 </head>
 <body class="px-4">
-    <div class="app-container max-w-md mx-auto space-y-6">
+    <div class="app-container max-w-md mx-auto space-y-5">
         <!-- Header -->
-        <header class="flex justify-between items-end">
+        <header class="flex justify-between items-start">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-white italic">的士收入助手</h1>
+                <h1 class="text-2xl font-black text-white italic tracking-tighter">的士收入助手</h1>
                 <div class="date-picker-wrapper mt-1">
                     <p id="display-date-text" class="text-blue-500 font-bold flex items-center gap-1 underline decoration-dotted underline-offset-4">
                         選擇日期... 📅
@@ -104,332 +98,243 @@
                 </div>
             </div>
             <div class="text-right">
-                <span class="text-[10px] text-gray-500 block font-bold uppercase">該日純利</span>
-                <span id="top-profit" class="text-2xl font-black text-green-500">$0</span>
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest">今日純利</p>
+                <p id="top-profit" class="text-3xl font-black text-green-500">$0</p>
             </div>
         </header>
 
-        <!-- Income Section -->
-        <section class="glass-card rounded-[2.5rem] p-6 shadow-2xl">
-            <!-- 手仔收入區 -->
-            <div class="mb-6">
-                <div class="flex items-center justify-between mb-4">
+        <!-- Main Form -->
+        <main class="glass-card rounded-[2rem] p-5 shadow-2xl space-y-6">
+            <!-- 手仔收入 -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
                     <div class="flex items-center gap-2">
-                        <div class="w-1.5 h-6 bg-purple-600 rounded-full"></div>
-                        <h2 class="font-bold text-gray-300">手仔收入 (路邊)</h2>
+                        <div class="w-1 h-5 bg-purple-500 rounded-full"></div>
+                        <h2 class="text-sm font-black text-gray-300">手仔收入</h2>
                     </div>
-                    <span class="text-xs font-black text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full">$<span id="display-total-hand">0</span></span>
+                    <span class="text-xs font-black text-purple-400">$<span id="display-total-hand">0</span></span>
                 </div>
-                
                 <div class="flex gap-2 mb-3">
-                    <input type="number" id="new-hand-val" inputmode="decimal" placeholder="輸入金額" class="flex-1 py-3 px-4 text-sm font-bold">
-                    <button onclick="addHandIncome()" class="bg-purple-600 text-white px-5 rounded-xl font-bold active-press">
-                        增加
-                    </button>
+                    <input type="number" id="new-hand-val" inputmode="decimal" placeholder="金額" class="flex-1 py-3 px-4 text-base font-bold">
+                    <button onclick="addHand()" class="bg-purple-600 text-white px-5 rounded-xl font-black active-press">增加</button>
                 </div>
-                <div id="hand-list" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto custom-scrollbar"></div>
+                <div id="hand-list" class="flex flex-wrap gap-2 max-h-20 overflow-y-auto custom-scrollbar"></div>
             </div>
 
-            <div class="flex items-center gap-2 mb-5 pt-4 border-t border-white/5">
-                <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
-                <h2 class="font-bold text-gray-300">平台 App 流水</h2>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black text-blue-500 ml-1">UBER</label>
-                    <input type="number" id="in-uber" inputmode="decimal" placeholder="0" class="w-full py-3 px-4 text-lg font-bold">
+            <!-- 平台收入 -->
+            <div class="pt-4 border-t border-white/5">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1 h-5 bg-blue-500 rounded-full"></div>
+                    <h2 class="text-sm font-black text-gray-300">平台流水</h2>
                 </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black text-orange-500 ml-1">高德 (AMAP)</label>
-                    <input type="number" id="in-amap" inputmode="decimal" placeholder="0" class="w-full py-3 px-4 text-lg font-bold">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black text-yellow-500 ml-1">滴滴 (DIDI)</label>
-                    <input type="number" id="in-didi" inputmode="decimal" placeholder="0" class="w-full py-3 px-4 text-lg font-bold">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black text-green-500 ml-1">TADA</label>
-                    <input type="number" id="in-tada" inputmode="decimal" placeholder="0" class="w-full py-3 px-4 text-lg font-bold">
-                </div>
-            </div>
-
-            <!-- Expenses Section -->
-            <div class="mt-8 pt-6 border-t border-white/5">
-                <div class="flex items-center gap-2 mb-5">
-                    <div class="w-1.5 h-6 bg-red-600 rounded-full"></div>
-                    <h2 class="font-bold text-gray-300">營運支出 (油/租/隧)</h2>
-                </div>
-                
-                <div class="flex gap-2 mb-4">
-                    <input type="number" id="new-exp-val" inputmode="decimal" placeholder="輸入金額" class="flex-1 py-3 px-4 text-sm font-bold">
-                    <button onclick="addExpenseInline()" class="bg-red-600 text-white px-5 rounded-xl font-bold active-press">
-                        新增
-                    </button>
-                </div>
-                
-                <div id="expense-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto custom-scrollbar"></div>
-
-                <div class="flex items-center justify-between bg-white/5 rounded-2xl p-4 border border-white/5">
-                    <span class="text-gray-400 font-bold text-xs">今日支出總計</span>
-                    <span class="text-xl font-black text-red-500">$<span id="display-total-exp">0</span></span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-blue-500 ml-1">UBER</label>
+                        <input type="number" id="in-uber" inputmode="decimal" oninput="calculate()" class="w-full py-3 px-3 text-lg font-bold">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-orange-500 ml-1">高德</label>
+                        <input type="number" id="in-amap" inputmode="decimal" oninput="calculate()" class="w-full py-3 px-3 text-lg font-bold">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-yellow-500 ml-1">滴滴</label>
+                        <input type="number" id="in-didi" inputmode="decimal" oninput="calculate()" class="w-full py-3 px-3 text-lg font-bold">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-green-500 ml-1">TADA</label>
+                        <input type="number" id="in-tada" inputmode="decimal" oninput="calculate()" class="w-full py-3 px-3 text-lg font-bold">
+                    </div>
                 </div>
             </div>
 
-            <button onclick="save()" class="w-full mt-6 bg-white text-black py-4 rounded-2xl font-black text-lg active-press shadow-xl">
-                儲存當日紀錄
+            <!-- 支出區 -->
+            <div class="pt-4 border-t border-white/5">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-5 bg-red-500 rounded-full"></div>
+                        <h2 class="text-sm font-black text-gray-300">營運支出</h2>
+                    </div>
+                    <span class="text-xs font-black text-red-400">$<span id="display-total-exp">0</span></span>
+                </div>
+                <div class="flex gap-2 mb-3">
+                    <input type="number" id="new-exp-val" inputmode="decimal" placeholder="租金/油錢" class="flex-1 py-3 px-4 text-base font-bold">
+                    <button onclick="addExp()" class="bg-red-600 text-white px-5 rounded-xl font-black active-press">新增</button>
+                </div>
+                <div id="exp-list" class="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar"></div>
+            </div>
+
+            <button onclick="saveData()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg active-press shadow-xl">
+                儲存今日紀錄
             </button>
-        </section>
+        </main>
 
-        <!-- Stats Section -->
-        <section class="glass-card rounded-[2.5rem] p-6 shadow-xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-black text-lg text-white">本週分析</h2>
-                <button onclick="clearAll()" class="text-[10px] text-gray-600 border border-gray-800 px-3 py-1.5 rounded-full font-bold active-press">清空</button>
+        <!-- Stats -->
+        <section class="glass-card rounded-[2rem] p-5 shadow-xl">
+            <h2 class="font-black text-lg mb-4 text-white">本週分析</h2>
+            <div id="chart-container" class="bar-container border-b border-white/10 mb-2"></div>
+            <div class="flex justify-between text-[10px] text-gray-600 font-black mb-6">
+                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
             </div>
-
-            <div class="mb-4">
-                <div id="chart-container" class="bar-container border-b border-white/10"></div>
-                <div class="flex justify-between px-1 mt-3 text-[10px] text-gray-600 font-black">
-                    <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
-                </div>
-            </div>
-
-            <div id="stats-content" class="space-y-4 pt-4"></div>
+            <div id="week-summary" class="space-y-3"></div>
         </section>
     </div>
 
-    <div id="toast" class="fixed bottom-12 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-4 rounded-3xl text-sm font-black opacity-0 shadow-2xl transition-all duration-300 pointer-events-none z-50">
-        已儲存
-    </div>
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-8 py-3 rounded-full text-sm font-black opacity-0 transition-all duration-300 pointer-events-none z-50"></div>
 
     <script>
-        const STORAGE_KEY = 'taxi_helper_v3_final';
-        let db = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        let currentDayExpenses = [];
-        let currentDayHandIncomes = [];
-        let selectedDate = new Date().toISOString().split('T')[0];
+        const DB_NAME = 'taxi_data_v4';
+        let db = JSON.parse(localStorage.getItem(DB_NAME) || '{}');
+        let currentDate = new Date().toISOString().split('T')[0];
+        let dayHand = [];
+        let dayExp = [];
 
-        function formatDisplayDate(dateStr) {
+        // 初始化
+        window.onload = () => {
+            const dateInput = document.getElementById('date-input');
+            dateInput.value = currentDate;
+            switchDate(currentDate);
+        };
+
+        function switchDate(dateStr) {
+            currentDate = dateStr;
             const d = new Date(dateStr);
-            return d.toLocaleDateString('zh-HK', { month: 'long', day: 'numeric', weekday: 'short' });
-        }
-
-        function getWeekKeys(baseDateStr) {
-            const now = new Date(baseDateStr);
-            const day = now.getDay();
-            const diff = now.getDate() - (day === 0 ? 6 : day - 1); 
-            const start = new Date(now.setDate(diff));
-            const keys = [];
-            for (let i = 0; i < 7; i++) {
-                const temp = new Date(start);
-                temp.setDate(start.getDate() + i);
-                keys.push(temp.toISOString().split('T')[0]);
-            }
-            return keys;
-        }
-
-        function loadDateData(dateStr) {
-            selectedDate = dateStr;
-            document.getElementById('display-date-text').innerText = formatDisplayDate(dateStr) + " 📅";
+            document.getElementById('display-date-text').innerText = d.toLocaleDateString('zh-HK', { month: 'short', day: 'numeric', weekday: 'short' }) + " 📅";
             
-            if (db[dateStr]) {
-                document.getElementById('in-uber').value = db[dateStr].u || "";
-                document.getElementById('in-amap').value = db[dateStr].a || "";
-                document.getElementById('in-didi').value = db[dateStr].d || "";
-                document.getElementById('in-tada').value = db[dateStr].t || "";
-                currentDayExpenses = db[dateStr].e_list || [];
-                currentDayHandIncomes = db[dateStr].h_list || [];
-            } else {
-                document.getElementById('in-uber').value = "";
-                document.getElementById('in-amap').value = "";
-                document.getElementById('in-didi').value = "";
-                document.getElementById('in-tada').value = "";
-                currentDayExpenses = [];
-                currentDayHandIncomes = [];
-            }
-            renderExpenseList();
-            renderHandList();
-            updateTopProfitPreview();
-            refreshCharts();
+            const data = db[dateStr] || { u:0, a:0, d:0, t:0, h_list:[], e_list:[] };
+            document.getElementById('in-uber').value = data.u || "";
+            document.getElementById('in-amap').value = data.a || "";
+            document.getElementById('in-didi').value = data.d || "";
+            document.getElementById('in-tada').value = data.t || "";
+            dayHand = data.h_list || [];
+            dayExp = data.e_list || [];
+            
+            renderLists();
+            calculate();
+            renderChart();
         }
 
-        function addHandIncome() {
-            const input = document.getElementById('new-hand-val');
-            const num = parseFloat(input.value);
-            if (!isNaN(num) && num > 0) {
-                currentDayHandIncomes.push(num);
-                input.value = "";
-                renderHandList();
-                updateTopProfitPreview();
-                input.blur();
+        function addHand() {
+            const val = parseFloat(document.getElementById('new-hand-val').value);
+            if (val > 0) {
+                dayHand.push(val);
+                document.getElementById('new-hand-val').value = "";
+                renderLists();
+                calculate();
             }
         }
 
-        function removeHand(index) {
-            currentDayHandIncomes.splice(index, 1);
-            renderHandList();
-            updateTopProfitPreview();
-        }
-
-        function renderHandList() {
-            const listEl = document.getElementById('hand-list');
-            const totalEl = document.getElementById('display-total-hand');
-            let total = 0;
-            if (currentDayHandIncomes.length === 0) {
-                listEl.innerHTML = `<p class="text-[10px] text-gray-700 italic">無手仔紀錄</p>`;
-                totalEl.innerText = "0";
-                return;
-            }
-            let html = '';
-            currentDayHandIncomes.forEach((amt, idx) => {
-                total += amt;
-                html += `<div onclick="removeHand(${idx})" class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg text-xs font-black active-press">$${amt}</div>`;
-            });
-            listEl.innerHTML = html;
-            totalEl.innerText = total.toLocaleString();
-        }
-
-        function addExpenseInline() {
-            const input = document.getElementById('new-exp-val');
-            const num = parseFloat(input.value);
-            if (!isNaN(num) && num > 0) {
-                currentDayExpenses.push(num);
-                input.value = "";
-                renderExpenseList();
-                updateTopProfitPreview();
-                input.blur();
+        function addExp() {
+            const val = parseFloat(document.getElementById('new-exp-val').value);
+            if (val > 0) {
+                dayExp.push(val);
+                document.getElementById('new-exp-val').value = "";
+                renderLists();
+                calculate();
             }
         }
 
-        function removeExpense(index) {
-            currentDayExpenses.splice(index, 1);
-            renderExpenseList();
-            updateTopProfitPreview();
+        function renderLists() {
+            // 手仔列表
+            const hList = document.getElementById('hand-list');
+            const hTotal = dayHand.reduce((a,b)=>a+b, 0);
+            document.getElementById('display-total-hand').innerText = hTotal;
+            hList.innerHTML = dayHand.length ? dayHand.map((v, i) => 
+                `<div onclick="dayHand.splice(${i},1);renderLists();calculate();" class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg text-xs font-black active-press">$${v}</div>`
+            ).join('') : `<p class="text-[10px] text-gray-700 italic">無手仔收入</p>`;
+
+            // 支出列表
+            const eList = document.getElementById('exp-list');
+            const eTotal = dayExp.reduce((a,b)=>a+b, 0);
+            document.getElementById('display-total-exp').innerText = eTotal;
+            eList.innerHTML = dayExp.length ? dayExp.map((v, i) => 
+                `<div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-gray-500">項目 ${i+1}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="font-black text-red-500">$${v}</span>
+                        <button onclick="dayExp.splice(${i},1);renderLists();calculate();" class="text-red-500 opacity-30 px-2">✕</button>
+                    </div>
+                </div>`
+            ).join('') : `<p class="text-[10px] text-gray-700 italic">無支出紀錄</p>`;
         }
 
-        function renderExpenseList() {
-            const listEl = document.getElementById('expense-list');
-            const totalEl = document.getElementById('display-total-exp');
-            let total = 0;
-            if (currentDayExpenses.length === 0) {
-                listEl.innerHTML = `<p class="text-[10px] text-gray-700 italic py-2">無支出紀錄</p>`;
-                totalEl.innerText = "0";
-                return;
-            }
-            let html = '';
-            currentDayExpenses.forEach((amt, idx) => {
-                total += amt;
-                html += `
-                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-                        <span class="text-xs font-bold text-gray-500">支出 ${idx + 1}</span>
-                        <div class="flex items-center gap-3">
-                            <span class="font-black text-red-500">$${amt}</span>
-                            <button onclick="removeExpense(${idx})" class="w-8 h-8 flex items-center justify-center bg-red-500/10 text-red-500 rounded-full text-xs">✕</button>
-                        </div>
-                    </div>`;
-            });
-            listEl.innerHTML = html;
-            totalEl.innerText = total.toLocaleString();
-        }
-
-        function updateTopProfitPreview() {
-            const h = currentDayHandIncomes.reduce((a, b) => a + b, 0);
+        function calculate() {
             const u = parseFloat(document.getElementById('in-uber').value) || 0;
             const a = parseFloat(document.getElementById('in-amap').value) || 0;
             const d = parseFloat(document.getElementById('in-didi').value) || 0;
             const t = parseFloat(document.getElementById('in-tada').value) || 0;
-            const totalExp = currentDayExpenses.reduce((a, b) => a + b, 0);
-            const profit = (h + u + a + d + t) - totalExp;
-            document.getElementById('top-profit').innerText = `$${profit.toLocaleString()}`;
-        }
-
-        function save() {
-            db[selectedDate] = {
-                h: currentDayHandIncomes.reduce((a, b) => a + b, 0),
-                h_list: [...currentDayHandIncomes],
-                u: parseFloat(document.getElementById('in-uber').value) || 0,
-                a: parseFloat(document.getElementById('in-amap').value) || 0,
-                d: parseFloat(document.getElementById('in-didi').value) || 0,
-                t: parseFloat(document.getElementById('in-tada').value) || 0,
-                e_list: [...currentDayExpenses],
-                e_total: currentDayExpenses.reduce((a, b) => a + b, 0)
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-            showToast("數據已儲存");
-            refreshCharts();
-        }
-
-        function refreshCharts() {
-            const week = getWeekKeys(selectedDate);
-            let weekSum = { h: 0, u: 0, a: 0, d: 0, t: 0, e: 0 };
-            let dailyTotals = [];
-            let maxDayTotal = 0;
-
-            week.forEach(k => {
-                const d = db[k] || { h: 0, u: 0, a: 0, d: 0, t: 0, e_total: 0 };
-                const dayTotal = (d.h || 0) + (d.u || 0) + (d.a || 0) + (d.d || 0) + (d.t || 0);
-                dailyTotals.push({ ...d, total: dayTotal, key: k });
-                if (dayTotal > maxDayTotal) maxDayTotal = dayTotal;
-                weekSum.h += (d.h || 0); weekSum.u += (d.u || 0); weekSum.a += (d.a || 0);
-                weekSum.d += (d.d || 0); weekSum.t += (d.t || 0);
-                weekSum.e += (d.e_total || 0);
-            });
-
-            const chartContainer = document.getElementById('chart-container');
-            chartContainer.innerHTML = '';
-            dailyTotals.forEach(day => {
-                const bar = document.createElement('div');
-                bar.className = `flex-1 flex flex-col justify-end gap-0.5 relative ${day.key === selectedDate ? 'bg-blue-500/10 rounded-lg' : ''}`;
-                const getH = (val) => maxDayTotal > 0 ? (val / maxDayTotal * 100) : 0;
-                bar.innerHTML = `
-                    <div class="w-full bg-green-500 bar-segment rounded-t-sm" style="height: ${getH(day.t)}%;"></div>
-                    <div class="w-full bg-yellow-500 bar-segment" style="height: ${getH(day.d)}%;"></div>
-                    <div class="w-full bg-orange-500 bar-segment" style="height: ${getH(day.a)}%;"></div>
-                    <div class="w-full bg-blue-500 bar-segment" style="height: ${getH(day.u)}%;"></div>
-                    <div class="w-full bg-purple-500 bar-segment rounded-b-sm" style="height: ${getH(day.h)}%;"></div>`;
-                chartContainer.appendChild(bar);
-            });
-
-            const totalIn = weekSum.h + weekSum.u + weekSum.a + weekSum.d + weekSum.t;
-            const net = totalIn - weekSum.e;
+            const h = dayHand.reduce((a,b)=>a+b, 0);
+            const e = dayExp.reduce((a,b)=>a+b, 0);
             
-            document.getElementById('stats-content').innerHTML = `
-                <div class="bg-blue-500/5 p-4 rounded-3xl border border-blue-500/10 space-y-4">
-                    <div class="flex justify-between items-center text-[10px] font-black text-gray-500 uppercase">
-                        <span>本週營收統計</span>
-                        <span>${week[0]} 起</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><p class="text-[10px] text-gray-500 font-bold">總流水</p><p class="text-xl font-black">$${totalIn}</p></div>
-                        <div><p class="text-[10px] text-red-500 font-bold">總支出</p><p class="text-xl font-black text-red-500">-$${weekSum.e}</p></div>
-                    </div>
-                    <div class="bg-green-500 p-4 rounded-2xl flex justify-between items-center">
-                        <span class="text-black font-black text-sm uppercase">本週純利</span>
-                        <span class="text-2xl font-black text-black">$${net}</span>
-                    </div>
-                </div>`;
+            const profit = (u + a + d + t + h) - e;
+            document.getElementById('top-profit').innerText = `$${profit.toLocaleString()}`;
+            return { u, a, d, t, h, e, profit };
+        }
+
+        function saveData() {
+            const vals = calculate();
+            db[currentDate] = {
+                u: vals.u, a: vals.a, d: vals.d, t: vals.t,
+                h_list: [...dayHand],
+                e_list: [...dayExp],
+                h_total: vals.h,
+                e_total: vals.e
+            };
+            localStorage.setItem(DB_NAME, JSON.stringify(db));
+            showToast("數據已儲存至手機");
+            renderChart();
+        }
+
+        function renderChart() {
+            const now = new Date(currentDate);
+            const day = now.getDay();
+            const diff = now.getDate() - (day === 0 ? 6 : day - 1);
+            const start = new Date(now.setDate(diff));
+            
+            let weekTotalIn = 0;
+            let weekTotalOut = 0;
+            let maxDaily = 0;
+            let dailyStats = [];
+
+            for(let i=0; i<7; i++) {
+                const temp = new Date(start);
+                temp.setDate(start.getDate() + i);
+                const key = temp.toISOString().split('T')[0];
+                const data = db[key] || { u:0, a:0, d:0, t:0, h_total:0, e_total:0 };
+                const dailyIn = (data.u||0)+(data.a||0)+(data.d||0)+(data.t||0)+(data.h_total||0);
+                dailyStats.push({ in: dailyIn, data: data });
+                if(dailyIn > maxDaily) maxDaily = dailyIn;
+                weekTotalIn += dailyIn;
+                weekTotalOut += (data.e_total || 0);
+            }
+
+            const container = document.getElementById('chart-container');
+            container.innerHTML = dailyStats.map(s => {
+                const h = maxDaily > 0 ? (s.in / maxDaily * 100) : 0;
+                return `<div class="flex-1 bg-white/5 rounded-t-sm relative bar-segment" style="height: ${h}%">
+                            <div class="absolute inset-0 bg-blue-500/20 rounded-t-sm"></div>
+                        </div>`;
+            }).join('');
+
+            document.getElementById('week-summary').innerHTML = `
+                <div class="bg-green-500 p-4 rounded-2xl flex justify-between items-center shadow-lg shadow-green-900/20">
+                    <span class="text-black font-black text-sm uppercase">本週純利</span>
+                    <span class="text-2xl font-black text-black">$${(weekTotalIn - weekTotalOut).toLocaleString()}</span>
+                </div>
+                <div class="flex justify-between px-2 text-[10px] font-black text-gray-500 uppercase">
+                    <span>總流水: $${weekTotalIn}</span>
+                    <span>總支出: $${weekTotalOut}</span>
+                </div>
+            `;
         }
 
         function showToast(m) {
             const t = document.getElementById('toast');
             t.innerText = m; t.style.opacity = "1";
-            setTimeout(() => t.style.opacity = "0", 2000);
+            setTimeout(()=> t.style.opacity = "0", 2000);
         }
 
-        function clearAll() {
-            if(confirm("確定清空數據？")) {
-                localStorage.removeItem(STORAGE_KEY);
-                db = {}; currentDayExpenses = []; currentDayHandIncomes = [];
-                loadDateData(selectedDate);
-            }
-        }
-
-        document.getElementById('date-input').addEventListener('change', (e) => loadDateData(e.target.value));
-        ['in-uber', 'in-amap', 'in-didi', 'in-tada'].forEach(id => {
-            document.getElementById(id).addEventListener('input', updateTopProfitPreview);
-        });
-
-        window.onload = () => {
-            const today = new Date().toISOString().split('T')[0];
-            docum
+        document.getElementById('date-input').onchange = (e) => switchDate(e.target.value);
+    </script>
+</body>
+</html>
