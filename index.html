@@ -31,7 +31,7 @@
             padding-top: calc(var(--safe-top) + 20px);
             padding-bottom: calc(var(--safe-bottom) + 40px);
         }
-        /* 強制輸入框樣式，解決部分手機顯示問題 */
+        /* 強制輸入框樣式 */
         input {
             background-color: #1c1c1e !important;
             border: 1px solid #3a3a3c !important;
@@ -40,6 +40,7 @@
             user-select: text !important;
             -webkit-user-select: text !important;
             opacity: 1 !important;
+            min-width: 0; /* 防止 flex 項目溢出 */
         }
         input::placeholder {
             color: #48484a;
@@ -50,7 +51,6 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        /* 日期選擇器熱區 */
         .date-picker-wrapper {
             position: relative;
             display: inline-block;
@@ -72,15 +72,9 @@
             gap: 6px;
             padding-bottom: 5px;
         }
-        .bar-segment {
-            transition: height 0.3s ease;
-        }
         .active-press:active {
             transform: scale(0.97);
             opacity: 0.8;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 0px;
         }
     </style>
 </head>
@@ -91,7 +85,7 @@
             <div>
                 <h1 class="text-2xl font-black text-white italic tracking-tighter">的士收入助手</h1>
                 <div class="date-picker-wrapper mt-1">
-                    <p id="display-date-text" class="text-blue-500 font-bold flex items-center gap-1 underline decoration-dotted underline-offset-4">
+                    <p id="display-date-text" class="text-blue-500 font-bold flex items-center gap-1 underline decoration-dotted underline-offset-4 text-sm">
                         選擇日期... 📅
                     </p>
                     <input type="date" id="date-input">
@@ -114,11 +108,11 @@
                     </div>
                     <span class="text-xs font-black text-purple-400">$<span id="display-total-hand">0</span></span>
                 </div>
-                <div class="flex gap-2 mb-3">
-                    <input type="number" id="new-hand-val" inputmode="decimal" placeholder="金額" class="flex-1 py-3 px-4 text-base font-bold">
-                    <button onclick="addHand()" class="bg-purple-600 text-white px-5 rounded-xl font-black active-press">增加</button>
+                <div class="flex gap-2">
+                    <input type="number" id="new-hand-val" inputmode="decimal" placeholder="金額" class="flex-1 py-3 px-3 text-base font-bold min-w-0">
+                    <button onclick="addHand()" class="bg-purple-600 text-white px-4 rounded-xl font-black text-sm active-press whitespace-nowrap">增加</button>
                 </div>
-                <div id="hand-list" class="flex flex-wrap gap-2 max-h-20 overflow-y-auto custom-scrollbar"></div>
+                <div id="hand-list" class="flex flex-wrap gap-2 mt-3 max-h-20 overflow-y-auto"></div>
             </div>
 
             <!-- 平台收入 -->
@@ -156,11 +150,11 @@
                     </div>
                     <span class="text-xs font-black text-red-400">$<span id="display-total-exp">0</span></span>
                 </div>
-                <div class="flex gap-2 mb-3">
-                    <input type="number" id="new-exp-val" inputmode="decimal" placeholder="租金/油錢" class="flex-1 py-3 px-4 text-base font-bold">
-                    <button onclick="addExp()" class="bg-red-600 text-white px-5 rounded-xl font-black active-press">新增</button>
+                <div class="flex gap-2">
+                    <input type="number" id="new-exp-val" inputmode="decimal" placeholder="租金/油錢" class="flex-1 py-3 px-3 text-base font-bold min-w-0">
+                    <button onclick="addExp()" class="bg-red-600 text-white px-4 rounded-xl font-black text-sm active-press whitespace-nowrap">新增</button>
                 </div>
-                <div id="exp-list" class="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar"></div>
+                <div id="exp-list" class="space-y-2 mt-3 max-h-32 overflow-y-auto pr-1"></div>
             </div>
 
             <button onclick="saveData()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg active-press shadow-xl">
@@ -172,7 +166,7 @@
         <section class="glass-card rounded-[2rem] p-5 shadow-xl">
             <h2 class="font-black text-lg mb-4 text-white">本週分析</h2>
             <div id="chart-container" class="bar-container border-b border-white/10 mb-2"></div>
-            <div class="flex justify-between text-[10px] text-gray-600 font-black mb-6">
+            <div class="flex justify-between text-[10px] text-gray-600 font-black mb-6 px-1">
                 <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
             </div>
             <div id="week-summary" class="space-y-3"></div>
@@ -189,7 +183,6 @@
         let dayHand = [];
         let dayExp = [];
 
-        // 初始化
         window.onload = () => {
             const dateInput = document.getElementById('date-input');
             dateInput.value = currentDate;
@@ -215,44 +208,44 @@
         }
 
         function addHand() {
-            const val = parseFloat(document.getElementById('new-hand-val').value);
+            const el = document.getElementById('new-hand-val');
+            const val = parseFloat(el.value);
             if (val > 0) {
                 dayHand.push(val);
-                document.getElementById('new-hand-val').value = "";
+                el.value = "";
                 renderLists();
                 calculate();
+                el.focus();
             }
         }
 
         function addExp() {
-            const val = parseFloat(document.getElementById('new-exp-val').value);
+            const el = document.getElementById('new-exp-val');
+            const val = parseFloat(el.value);
             if (val > 0) {
                 dayExp.push(val);
-                document.getElementById('new-exp-val').value = "";
+                el.value = "";
                 renderLists();
                 calculate();
+                el.focus();
             }
         }
 
         function renderLists() {
-            // 手仔列表
             const hList = document.getElementById('hand-list');
-            const hTotal = dayHand.reduce((a,b)=>a+b, 0);
-            document.getElementById('display-total-hand').innerText = hTotal;
+            document.getElementById('display-total-hand').innerText = dayHand.reduce((a,b)=>a+b, 0);
             hList.innerHTML = dayHand.length ? dayHand.map((v, i) => 
                 `<div onclick="dayHand.splice(${i},1);renderLists();calculate();" class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg text-xs font-black active-press">$${v}</div>`
             ).join('') : `<p class="text-[10px] text-gray-700 italic">無手仔收入</p>`;
 
-            // 支出列表
             const eList = document.getElementById('exp-list');
-            const eTotal = dayExp.reduce((a,b)=>a+b, 0);
-            document.getElementById('display-total-exp').innerText = eTotal;
+            document.getElementById('display-total-exp').innerText = dayExp.reduce((a,b)=>a+b, 0);
             eList.innerHTML = dayExp.length ? dayExp.map((v, i) => 
-                `<div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
+                `<div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
                     <span class="text-xs font-bold text-gray-500">項目 ${i+1}</span>
                     <div class="flex items-center gap-3">
                         <span class="font-black text-red-500">$${v}</span>
-                        <button onclick="dayExp.splice(${i},1);renderLists();calculate();" class="text-red-500 opacity-30 px-2">✕</button>
+                        <button onclick="dayExp.splice(${i},1);renderLists();calculate();" class="text-red-500 opacity-30 px-2 font-bold">✕</button>
                     </div>
                 </div>`
             ).join('') : `<p class="text-[10px] text-gray-700 italic">無支出紀錄</p>`;
@@ -265,7 +258,6 @@
             const t = parseFloat(document.getElementById('in-tada').value) || 0;
             const h = dayHand.reduce((a,b)=>a+b, 0);
             const e = dayExp.reduce((a,b)=>a+b, 0);
-            
             const profit = (u + a + d + t + h) - e;
             document.getElementById('top-profit').innerText = `$${profit.toLocaleString()}`;
             return { u, a, d, t, h, e, profit };
@@ -275,13 +267,11 @@
             const vals = calculate();
             db[currentDate] = {
                 u: vals.u, a: vals.a, d: vals.d, t: vals.t,
-                h_list: [...dayHand],
-                e_list: [...dayExp],
-                h_total: vals.h,
-                e_total: vals.e
+                h_list: [...dayHand], e_list: [...dayExp],
+                h_total: vals.h, e_total: vals.e
             };
             localStorage.setItem(DB_NAME, JSON.stringify(db));
-            showToast("數據已儲存至手機");
+            showToast("數據已儲存");
             renderChart();
         }
 
@@ -290,42 +280,34 @@
             const day = now.getDay();
             const diff = now.getDate() - (day === 0 ? 6 : day - 1);
             const start = new Date(now.setDate(diff));
-            
-            let weekTotalIn = 0;
-            let weekTotalOut = 0;
-            let maxDaily = 0;
-            let dailyStats = [];
-
+            let weekIn = 0, weekOut = 0, maxD = 0, stats = [];
             for(let i=0; i<7; i++) {
                 const temp = new Date(start);
                 temp.setDate(start.getDate() + i);
                 const key = temp.toISOString().split('T')[0];
                 const data = db[key] || { u:0, a:0, d:0, t:0, h_total:0, e_total:0 };
-                const dailyIn = (data.u||0)+(data.a||0)+(data.d||0)+(data.t||0)+(data.h_total||0);
-                dailyStats.push({ in: dailyIn, data: data });
-                if(dailyIn > maxDaily) maxDaily = dailyIn;
-                weekTotalIn += dailyIn;
-                weekTotalOut += (data.e_total || 0);
+                const dIn = (data.u||0)+(data.a||0)+(data.d||0)+(data.t||0)+(data.h_total||0);
+                stats.push(dIn);
+                if(dIn > maxD) maxD = dIn;
+                weekIn += dIn;
+                weekOut += (data.e_total || 0);
             }
-
             const container = document.getElementById('chart-container');
-            container.innerHTML = dailyStats.map(s => {
-                const h = maxDaily > 0 ? (s.in / maxDaily * 100) : 0;
-                return `<div class="flex-1 bg-white/5 rounded-t-sm relative bar-segment" style="height: ${h}%">
+            container.innerHTML = stats.map(s => {
+                const h = maxD > 0 ? (s / maxD * 100) : 0;
+                return `<div class="flex-1 bg-white/5 rounded-t-sm relative" style="height: ${h}%">
                             <div class="absolute inset-0 bg-blue-500/20 rounded-t-sm"></div>
                         </div>`;
             }).join('');
-
             document.getElementById('week-summary').innerHTML = `
                 <div class="bg-green-500 p-4 rounded-2xl flex justify-between items-center shadow-lg shadow-green-900/20">
                     <span class="text-black font-black text-sm uppercase">本週純利</span>
-                    <span class="text-2xl font-black text-black">$${(weekTotalIn - weekTotalOut).toLocaleString()}</span>
+                    <span class="text-2xl font-black text-black">$${(weekIn - weekOut).toLocaleString()}</span>
                 </div>
                 <div class="flex justify-between px-2 text-[10px] font-black text-gray-500 uppercase">
-                    <span>總流水: $${weekTotalIn}</span>
-                    <span>總支出: $${weekTotalOut}</span>
-                </div>
-            `;
+                    <span>總流水: $${weekIn}</span>
+                    <span>總支出: $${weekOut}</span>
+                </div>`;
         }
 
         function showToast(m) {
