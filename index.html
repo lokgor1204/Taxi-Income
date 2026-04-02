@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>的士助手 v1.6.0</title>
+    <title>的士助手 v1.6.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -59,7 +59,6 @@
             color: #3b82f6;
             border-bottom: 2px solid #3b82f6;
         }
-        /* 滾動區域限制：嚴格限制高度以顯示約 3 個項目 */
         .scroll-list {
             max-height: 155px; 
             overflow-y: auto;
@@ -75,11 +74,10 @@
     </style>
 </head>
 <body class="min-h-screen p-4 pb-24">
-    <!-- Header -->
     <header class="max-w-2xl mx-auto mb-6">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-bold">的士助手 <span class="text-sm font-normal opacity-70">v1.6.0</span></h1>
+                <h1 class="text-xl font-bold">的士助手 <span class="text-sm font-normal opacity-70">v1.6.1</span></h1>
             </div>
             <div class="flex items-center gap-4">
                 <div class="text-right">
@@ -96,15 +94,13 @@
                 </button>
             </div>
         </div>
-        <!-- 日期選擇器 -->
         <div class="mt-4 flex items-center gap-2">
             <span class="text-sm opacity-70 font-medium">查看日期：</span>
-            <input type="date" id="date-picker" class="p-2 rounded-lg text-sm font-bold shadow-sm border border-blue-200" onchange="changeDate()">
+            <input type="date" id="date-picker" class="p-2 rounded-lg text-sm font-bold shadow-sm border border-blue-200">
         </div>
     </header>
 
     <main class="max-w-2xl mx-auto space-y-6">
-        <!-- 平台收入 -->
         <section class="card p-4 rounded-xl shadow-sm">
             <h2 class="font-bold mb-4 flex items-center gap-2 text-blue-500">
                 <span>📱 平台收入</span>
@@ -112,42 +108,39 @@
             <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1">
                     <label class="text-[10px] uppercase tracking-wider opacity-60 ml-1">Uber</label>
-                    <input type="number" id="input-uber" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0" oninput="saveData()">
+                    <input type="number" id="input-uber" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] uppercase tracking-wider opacity-60 ml-1">高德</label>
-                    <input type="number" id="input-gaode" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0" oninput="saveData()">
+                    <input type="number" id="input-gaode" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] uppercase tracking-wider opacity-60 ml-1">滴滴 (DiDi)</label>
-                    <input type="number" id="input-didi" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0" oninput="saveData()">
+                    <input type="number" id="input-didi" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] uppercase tracking-wider opacity-60 ml-1">Dash</label>
-                    <input type="number" id="input-dash" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0" oninput="saveData()">
+                    <input type="number" id="input-dash" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0">
                 </div>
             </div>
         </section>
 
-        <!-- 其他收入 -->
         <section class="card p-4 rounded-xl shadow-sm">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="font-bold text-blue-500">➕ 其他收入 (街車/預約)</h2>
-                <button onclick="addItem('income')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">+ 新增</button>
+                <button id="add-income-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">+ 新增</button>
             </div>
             <div id="income-list" class="scroll-list space-y-3"></div>
         </section>
 
-        <!-- 支出紀錄 -->
         <section class="card p-4 rounded-xl shadow-sm">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="font-bold text-red-500">➖ 支出紀錄</h2>
-                <button onclick="addItem('expense')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">+ 新增</button>
+                <button id="add-expense-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">+ 新增</button>
             </div>
             <div id="expense-list" class="scroll-list space-y-3"></div>
         </section>
 
-        <!-- 分頁總結純利 -->
         <section class="card rounded-2xl shadow-lg overflow-hidden border-t-4 border-t-green-500">
             <div class="flex border-b border-gray-100 dark:border-gray-800">
                 <button onclick="switchTab(1)" id="tab-btn-1" class="flex-1 py-3 text-sm font-bold tab-active">今日總結</button>
@@ -156,7 +149,6 @@
             </div>
 
             <div class="p-6">
-                <!-- Page 1: 今日 -->
                 <div id="page-1" class="space-y-4">
                     <div class="text-center">
                         <h2 id="summary-date-label" class="text-sm uppercase tracking-widest opacity-60 mb-1">今日預計純利</h2>
@@ -174,7 +166,6 @@
                     </div>
                 </div>
 
-                <!-- Page 2: 本週 -->
                 <div id="page-2" class="hidden space-y-4">
                     <h3 class="text-center font-bold text-gray-400 text-xs uppercase tracking-widest">本週每日純利總計</h3>
                     <div id="week-list" class="space-y-2"></div>
@@ -184,7 +175,6 @@
                     </div>
                 </div>
 
-                <!-- Page 3: 本月 -->
                 <div id="page-3" class="hidden space-y-4">
                     <h3 class="text-center font-bold text-gray-400 text-xs uppercase tracking-widest">本月每週趨勢</h3>
                     <div id="month-list" class="space-y-2"></div>
@@ -200,24 +190,49 @@
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm opacity-0 pointer-events-none transition-opacity z-50"></div>
 
     <script>
-        let currentDate = new Date().toISOString().split('T')[0];
+        // 初始化狀態
         let appState = {
             isDarkMode: false,
             dataByDate: {} 
         };
+        
+        let currentDate = new Date().toISOString().split('T')[0];
 
+        // 綁定 DOM
         const themeToggle = document.getElementById('theme-toggle');
         const sunIcon = document.getElementById('sun-icon');
         const moonIcon = document.getElementById('moon-icon');
         const datePicker = document.getElementById('date-picker');
+        
+        const inputUber = document.getElementById('input-uber');
+        const inputGaode = document.getElementById('input-gaode');
+        const inputDidi = document.getElementById('input-didi');
+        const inputDash = document.getElementById('input-dash');
 
-        datePicker.value = currentDate;
+        // 主邏輯
+        function init() {
+            loadFromLocalStorage();
+            datePicker.value = currentDate;
+            
+            // 綁定事件
+            datePicker.onchange = changeDate;
+            inputUber.oninput = saveData;
+            inputGaode.oninput = saveData;
+            inputDidi.oninput = saveData;
+            inputDash.oninput = saveData;
+            
+            document.getElementById('add-income-btn').onclick = () => addItem('income');
+            document.getElementById('add-expense-btn').onclick = () => addItem('expense');
+            
+            themeToggle.onclick = () => {
+                appState.isDarkMode = !appState.isDarkMode;
+                applyTheme();
+                saveToLocalStorage();
+            };
 
-        themeToggle.addEventListener('click', () => {
-            appState.isDarkMode = !appState.isDarkMode;
             applyTheme();
-            saveToLocalStorage();
-        });
+            changeDate();
+        }
 
         function applyTheme() {
             if (appState.isDarkMode) {
@@ -233,31 +248,62 @@
 
         function changeDate() {
             currentDate = datePicker.value;
+            
+            // 確保該日期有資料結構
+            if (!appState.dataByDate[currentDate]) {
+                appState.dataByDate[currentDate] = { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
+            }
+            
+            const dayData = appState.dataByDate[currentDate];
+            
+            // 更新輸入框值
+            inputUber.value = dayData.uber || "";
+            inputGaode.value = dayData.gaode || "";
+            inputDidi.value = dayData.didi || "";
+            inputDash.value = dayData.dash || "";
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('summary-date-label').innerText = (currentDate === todayStr) ? "今日預計純利" : `${currentDate} 預計純利`;
+            
+            renderLists();
+            calculate();
+        }
+
+        function saveData() {
             if (!appState.dataByDate[currentDate]) {
                 appState.dataByDate[currentDate] = { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
             }
             const dayData = appState.dataByDate[currentDate];
-            document.getElementById('input-uber').value = dayData.uber || '';
-            document.getElementById('input-gaode').value = dayData.gaode || '';
-            document.getElementById('input-didi').value = dayData.didi || '';
-            document.getElementById('input-dash').value = dayData.dash || '';
+            dayData.uber = parseFloat(inputUber.value) || 0;
+            dayData.gaode = parseFloat(inputGaode.value) || 0;
+            dayData.didi = parseFloat(inputDidi.value) || 0;
+            dayData.dash = parseFloat(inputDash.value) || 0;
             
-            document.getElementById('summary-date-label').innerText = (currentDate === new Date().toISOString().split('T')[0]) ? "今日預計純利" : `${currentDate} 預計純利`;
-            
-            renderLists();
+            calculate();
             saveToLocalStorage();
         }
 
-        function switchTab(pageNum) {
-            [1, 2, 3].forEach(n => {
-                document.getElementById(`page-${n}`).classList.add('hidden');
-                document.getElementById(`tab-btn-${n}`).classList.remove('tab-active');
-                document.getElementById(`tab-btn-${n}`).classList.add('opacity-50');
-            });
-            document.getElementById(`page-${pageNum}`).classList.remove('hidden');
-            document.getElementById(`tab-btn-${pageNum}`).classList.add('tab-active');
-            document.getElementById(`tab-btn-${pageNum}`).classList.remove('opacity-50');
-            calculate();
+        function calculate() {
+            const dayData = appState.dataByDate[currentDate] || { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
+            
+            const platformTotal = (dayData.uber || 0) + (dayData.gaode || 0) + (dayData.didi || 0) + (dayData.dash || 0);
+            const otherIncomeTotal = (dayData.incomes || []).reduce((sum, item) => sum + (item.amount || 0), 0);
+            const totalExpense = (dayData.expenses || []).reduce((sum, item) => sum + (item.amount || 0), 0);
+            
+            const totalIncome = platformTotal + otherIncomeTotal;
+            const netProfit = totalIncome - totalExpense;
+
+            const profitEl = document.getElementById('total-profit');
+            const headerProfitEl = document.getElementById('header-profit');
+            
+            profitEl.innerText = `$ ${netProfit.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            headerProfitEl.innerText = `$${Math.floor(netProfit).toLocaleString()}`;
+            document.getElementById('summary-income').innerText = `$ ${totalIncome.toLocaleString()}`;
+            document.getElementById('summary-expense').innerText = `$ ${totalExpense.toLocaleString()}`;
+            
+            profitEl.className = netProfit < 0 ? 'text-5xl font-black text-red-500 my-2' : 'text-5xl font-black text-green-500 my-2';
+
+            renderStats();
         }
 
         function addItem(type) {
@@ -265,26 +311,24 @@
                 ? { from: '', to: '', amount: 0, id: Date.now() }
                 : { category: '隧道', amount: 0, id: Date.now() };
             
-            if (type === 'income') {
-                appState.dataByDate[currentDate].incomes.unshift(newItem); 
-            } else {
-                appState.dataByDate[currentDate].expenses.unshift(newItem); 
-            }
+            appState.dataByDate[currentDate][type === 'income' ? 'incomes' : 'expenses'].unshift(newItem); 
             renderLists();
+            calculate();
             saveToLocalStorage();
         }
 
         function removeItem(type, id) {
             const dayData = appState.dataByDate[currentDate];
-            if (type === 'income') dayData.incomes = dayData.incomes.filter(item => item.id !== id);
-            else dayData.expenses = dayData.expenses.filter(item => item.id !== id);
+            const listKey = type === 'income' ? 'incomes' : 'expenses';
+            dayData[listKey] = dayData[listKey].filter(item => item.id !== id);
             renderLists();
+            calculate();
             saveToLocalStorage();
         }
 
         function updateItem(type, id, field, value) {
-            const list = type === 'income' ? appState.dataByDate[currentDate].incomes : appState.dataByDate[currentDate].expenses;
-            const item = list.find(i => i.id === id);
+            const listKey = type === 'income' ? 'incomes' : 'expenses';
+            const item = appState.dataByDate[currentDate][listKey].find(i => i.id === id);
             if (item) {
                 item[field] = field === 'amount' ? parseFloat(value) || 0 : value;
                 calculate();
@@ -301,33 +345,25 @@
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
                 try {
-                    // 使用 Nominatim 反向地理編碼，並增加詳細程度
                     const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`, {
                         headers: { 'Accept-Language': 'zh-HK' }
                     });
                     const data = await response.json();
-                    
-                    // 抓取街道及門牌
                     const addr = data.address;
                     const houseNumber = addr.house_number || "";
-                    const road = addr.road || addr.pedestrian || addr.suburb || addr.city || "未知地點";
-                    
-                    // 組合地址：門牌號 + 街道
+                    const road = addr.road || addr.pedestrian || addr.suburb || addr.city || "位置不明";
                     const fullAddress = houseNumber ? `${road}${houseNumber}號` : road;
                     
                     const input = document.getElementById(`input-${id}-${field}`);
                     input.value = fullAddress;
                     updateItem('income', id, field, fullAddress);
                     showToast(`📍 ${fullAddress}`);
-                } catch (error) { showToast("讀取失敗"); } 
+                } catch (e) { showToast("定位失敗"); } 
                 finally { btn.innerHTML = originalIcon; }
             }, () => {
-                showToast("獲取位置被拒絕");
+                showToast("權限被拒絕");
                 btn.innerHTML = originalIcon;
-            }, { 
-                timeout: 10000,
-                enableHighAccuracy: true // 開啟高精度模式
-            });
+            }, { timeout: 10000, enableHighAccuracy: true });
         }
 
         function showToast(msg) {
@@ -338,11 +374,11 @@
         }
 
         function renderLists() {
-            const dayData = appState.dataByDate[currentDate];
+            const dayData = appState.dataByDate[currentDate] || { incomes: [], expenses: [] };
             const incC = document.getElementById('income-list');
             const expC = document.getElementById('expense-list');
 
-            incC.innerHTML = dayData.incomes.map(item => `
+            incC.innerHTML = (dayData.incomes || []).map(item => `
                 <div class="space-y-2 pb-3 border-b border-gray-100 dark:border-gray-800 last:border-0">
                     <div class="flex gap-2 items-center">
                         <div class="relative flex-1">
@@ -360,32 +396,7 @@
                         <input type="number" placeholder="$" value="${item.amount || ''}" 
                             oninput="updateItem('income', ${item.id}, 'amount', this.value)"
                             class="w-16 p-2 text-sm rounded-lg">
-                        <button onclick="removeItem('income', ${item.id})" class="text-gray-400 p-1 font-bold">✕</button>
+                        <button onclick="removeItem('income', ${item.id})" class="text-gray-400 p-1">✕</button>
                     </div>
                 </div>
-            `).join('');
-
-            expC.innerHTML = dayData.expenses.map(item => `
-                <div class="flex gap-2 items-center mb-2 last:mb-0">
-                    <div class="flex-1 relative">
-                        <select onchange="updateItem('expense', ${item.id}, 'category', this.value)"
-                            class="w-full p-2 pr-8 text-sm rounded-lg appearance-none">
-                            <option value="隧道" ${item.category === '隧道' ? 'selected' : ''}>隧道</option>
-                            <option value="氣/電" ${item.category === '氣/電' ? 'selected' : ''}>氣/電</option>
-                            <option value="租金" ${item.category === '租金' ? 'selected' : ''}>租金</option>
-                            <option value="抄牌" ${item.category === '抄牌' ? 'selected' : ''}>抄牌</option>
-                            <option value="其他" ${item.category === '其他' ? 'selected' : ''}>其他</option>
-                        </select>
-                        <div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 text-[10px]">▼</div>
-                    </div>
-                    <input type="number" placeholder="$" value="${item.amount || ''}" 
-                        oninput="updateItem('expense', ${item.id}, 'amount', this.value)"
-                        class="w-24 p-2 text-sm rounded-lg">
-                    <button onclick="removeItem('expense', ${item.id})" class="text-gray-400 p-1 font-bold">✕</button>
-                </div>
-            `).join('');
-            
-            calculate();
-        }
-
-        function calculate() {
+            `
