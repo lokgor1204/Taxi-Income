@@ -1,9 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>的士助手 v1.5.1</title>
+    <title>的士助手 v1.6.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -78,7 +79,7 @@
     <header class="max-w-2xl mx-auto mb-6">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-bold">的士助手 <span class="text-sm font-normal opacity-70">v1.5.1</span></h1>
+                <h1 class="text-xl font-bold">的士助手 <span class="text-sm font-normal opacity-70">v1.6.0</span></h1>
             </div>
             <div class="flex items-center gap-4">
                 <div class="text-right">
@@ -300,21 +301,33 @@
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
                 try {
+                    // 使用 Nominatim 反向地理編碼，並增加詳細程度
                     const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`, {
                         headers: { 'Accept-Language': 'zh-HK' }
                     });
                     const data = await response.json();
-                    const road = data.address.road || data.address.suburb || data.address.city || "位置不明";
+                    
+                    // 抓取街道及門牌
+                    const addr = data.address;
+                    const houseNumber = addr.house_number || "";
+                    const road = addr.road || addr.pedestrian || addr.suburb || addr.city || "未知地點";
+                    
+                    // 組合地址：門牌號 + 街道
+                    const fullAddress = houseNumber ? `${road}${houseNumber}號` : road;
+                    
                     const input = document.getElementById(`input-${id}-${field}`);
-                    input.value = road;
-                    updateItem('income', id, field, road);
-                    showToast(`📍 已更新為 ${road}`);
+                    input.value = fullAddress;
+                    updateItem('income', id, field, fullAddress);
+                    showToast(`📍 ${fullAddress}`);
                 } catch (error) { showToast("讀取失敗"); } 
                 finally { btn.innerHTML = originalIcon; }
             }, () => {
                 showToast("獲取位置被拒絕");
                 btn.innerHTML = originalIcon;
-            }, { timeout: 8000 });
+            }, { 
+                timeout: 10000,
+                enableHighAccuracy: true // 開啟高精度模式
+            });
         }
 
         function showToast(msg) {
@@ -376,157 +389,3 @@
         }
 
         function calculate() {
-            const dayData = appState.dataByDate[currentDate];
-            dayData.uber = parseFloat(document.getElementById('input-uber').value) || 0;
-            dayData.gaode = parseFloat(document.getElementById('input-gaode').value) || 0;
-            dayData.didi = parseFloat(document.getElementById('input-didi').value) || 0;
-            dayData.dash = parseFloat(document.getElementById('input-dash').value) || 0;
-
-            const platformTotal = dayData.uber + dayData.gaode + dayData.didi + dayData.dash;
-            const otherIncomeTotal = dayData.incomes.reduce((sum, item) => sum + (item.amount || 0), 0);
-            const totalExpense = dayData.expenses.reduce((sum, item) => sum + (item.amount || 0), 0);
-            const totalIncome = platformTotal + otherIncomeTotal;
-            const netProfit = totalIncome - totalExpense;
-
-            const profitEl = document.getElementById('total-profit');
-            const headerProfitEl = document.getElementById('header-profit');
-            profitEl.innerText = `$ ${netProfit.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            headerProfitEl.innerText = `$${Math.floor(netProfit).toLocaleString()}`;
-            document.getElementById('summary-income').innerText = `$ ${totalIncome.toLocaleString()}`;
-            document.getElementById('summary-expense').innerText = `$ ${totalExpense.toLocaleString()}`;
-            
-            profitEl.className = netProfit < 0 ? 'text-5xl font-black text-red-500 my-2' : 'text-5xl font-black text-green-500 my-2';
-
-            renderStats();
-        }
-
-        // 獲取數據輔助函式
-        function getDataByDate(dateStr) {
-            const d = appState.dataByDate[dateStr];
-            if (!d) return { income: 0, expense: 0, profit: 0 };
-            const inc = (d.uber || 0) + (d.gaode || 0) + (d.didi || 0) + (d.dash || 0) + d.incomes.reduce((s, i) => s + (i.amount || 0), 0);
-            const exp = d.expenses.reduce((s, i) => s + (i.amount || 0), 0);
-            return { income: inc, expense: exp, profit: inc - exp };
-        }
-
-        function renderStats() {
-            const selDate = new Date(currentDate);
-            
-            // 1. 渲染本週統計 (改為顯示當日純利)
-            const weekC = document.getElementById('week-list');
-            let weekProfitTotal = 0;
-            let weekHTML = '';
-            
-            const dayOfWeek = selDate.getDay(); 
-            const diff = selDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
-            const monday = new Date(new Date(selDate).setDate(diff));
-            const dayNames = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
-
-            for(let i=0; i<7; i++) {
-                const d = new Date(monday);
-                d.setDate(monday.getDate() + i);
-                const dStr = d.toISOString().split('T')[0];
-                const stats = getDataByDate(dStr);
-                weekProfitTotal += stats.profit;
-                
-                const dateDisplay = `${d.getMonth()+1}/${d.getDate()}`;
-                weekHTML += `
-                    <div class="flex justify-between items-center text-sm py-1.5 border-b border-gray-50 dark:border-gray-800 last:border-0">
-                        <div class="flex gap-3">
-                            <span class="font-bold w-10">${dayNames[i]}</span>
-                            <span class="opacity-40 text-xs mt-0.5">${dateDisplay}</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[10px] opacity-40 block leading-none mb-0.5">當日純利</span>
-                            <span class="font-mono font-bold ${stats.profit < 0 ? 'text-red-500' : 'text-green-500'}">$${stats.profit.toLocaleString()}</span>
-                        </div>
-                    </div>`;
-            }
-            weekC.innerHTML = weekHTML;
-            document.getElementById('week-total').innerText = `$${weekProfitTotal.toLocaleString()}`;
-
-            // 2. 渲染本月統計 (清晰寫住星期日期範圍)
-            const monthC = document.getElementById('month-list');
-            const targetMonth = new Date(currentDate).getMonth();
-            const targetYear = new Date(currentDate).getFullYear();
-            let monthTotal = 0;
-            let monthHTML = '';
-
-            const firstDay = new Date(targetYear, targetMonth, 1);
-            const lastDay = new Date(targetYear, targetMonth + 1, 0);
-            
-            let current = new Date(firstDay);
-            let weekNum = 1;
-
-            while (current <= lastDay) {
-                let weekStart = new Date(current);
-                let dayOfW = current.getDay();
-                let daysToSun = (dayOfW === 0 ? 0 : 7 - dayOfW);
-                let weekEnd = new Date(current);
-                weekEnd.setDate(current.getDate() + daysToSun);
-                if (weekEnd > lastDay) weekEnd = new Date(lastDay);
-
-                let currentWeekProfit = 0;
-                let temp = new Date(weekStart);
-                while(temp <= weekEnd) {
-                    currentWeekProfit += getDataByDate(temp.toISOString().split('T')[0]).profit;
-                    temp.setDate(temp.getDate() + 1);
-                }
-                monthTotal += currentWeekProfit;
-
-                const startLabel = `${weekStart.getMonth()+1}/${weekStart.getDate()}`;
-                const endLabel = `${weekEnd.getMonth()+1}/${weekEnd.getDate()}`;
-
-                monthHTML += `
-                    <div class="flex justify-between items-center text-sm py-3 border-b border-gray-50 dark:border-gray-800 last:border-0">
-                        <div class="flex flex-col">
-                            <span class="font-black text-sm tracking-tight">${startLabel} 至 ${endLabel}</span>
-                            <span class="opacity-40 text-[10px]">第 ${weekNum} 週總結</span>
-                        </div>
-                        <span class="font-mono font-bold ${currentWeekProfit < 0 ? 'text-red-500' : (currentWeekProfit > 0 ? 'text-purple-500' : 'opacity-30')}">
-                            $${currentWeekProfit.toLocaleString()}
-                        </span>
-                    </div>`;
-                
-                current = new Date(weekEnd);
-                current.setDate(weekEnd.getDate() + 1);
-                weekNum++;
-            }
-            monthC.innerHTML = monthHTML;
-            document.getElementById('month-total').innerText = `$${monthTotal.toLocaleString()}`;
-        }
-
-        function saveData() {
-            const dayData = appState.dataByDate[currentDate];
-            dayData.uber = parseFloat(document.getElementById('input-uber').value) || 0;
-            dayData.gaode = parseFloat(document.getElementById('input-gaode').value) || 0;
-            dayData.didi = parseFloat(document.getElementById('input-didi').value) || 0;
-            dayData.dash = parseFloat(document.getElementById('input-dash').value) || 0;
-            saveToLocalStorage();
-            calculate();
-        }
-
-        function saveToLocalStorage() {
-            localStorage.setItem('taxi_helper_v1.5_data', JSON.stringify(appState));
-        }
-
-        function loadFromLocalStorage() {
-            const saved = localStorage.getItem('taxi_helper_v1.5_data');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    appState = { ...appState, ...parsed };
-                    applyTheme();
-                    changeDate(); 
-                } catch (e) { console.error(e); }
-            } else {
-                appState.dataByDate[currentDate] = { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
-                renderLists();
-            }
-        }
-
-        window.onload = loadFromLocalStorage;
-    </script>
-</body>
-</html>
-
