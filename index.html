@@ -3,399 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>的士助手 v1.6.1</title>
+    <title>的士助手 v1.6.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-color: #1f2937;
-            --border-color: #e5e7eb;
-        }
-        .dark {
-            --bg-color: #111827;
-            --card-bg: #1f2937;
-            --text-color: #f3f4f6;
-            --border-color: #374151;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-        }
-        input, select {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            outline: none;
-            appearance: none;
-        }
-        input:focus, select:focus {
-            border-color: #3b82f6;
-        }
-        .gps-btn {
-            background: #e5e7eb;
-            color: #4b5563;
-        }
-        .dark .gps-btn {
-            background: #374151;
-            color: #9ca3af;
-        }
-        .loading-spin {
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .tab-active {
-            color: #3b82f6;
-            border-bottom: 2px solid #3b82f6;
-        }
-        .scroll-list {
-            max-height: 155px; 
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .scroll-list::-webkit-scrollbar {
-            width: 4px;
-        }
-        .scroll-list::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
+        :root { --bg-color: #f3f4f6; --card-bg: #ffffff; --text-color: #1f2937; --border-color: #e5e7eb; }
+        .dark { --bg-color: #111827; --card-bg: #1f2937; --text-color: #f3f4f6; --border-color: #374151; }
+        body { background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s; font-family: system-ui; -webkit-tap-highlight-color: transparent; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); }
+        input, select { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); outline: none; }
+        .tab-active { color: #3b82f6; border-bottom: 2px solid #3b82f6; }
+        .scroll-list { max-height: 180px; overflow-y: auto; }
+        .loading-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen p-4 pb-24">
     <header class="max-w-2xl mx-auto mb-6">
         <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold">的士助手 <span class="text-sm font-normal opacity-70">v1.6.1</span></h1>
-            </div>
+            <h1 class="text-xl font-bold">的士助手 <span class="text-xs font-normal opacity-50">v1.6.2</span></h1>
             <div class="flex items-center gap-4">
                 <div class="text-right">
-                    <span class="text-xs opacity-70 block">當日純利</span>
+                    <span class="text-[10px] opacity-60 block">今日純利</span>
                     <span id="header-profit" class="text-xl font-black text-green-500">$0</span>
                 </div>
-                <button id="theme-toggle" class="p-2 rounded-full card shadow-sm active:scale-95 transition-transform flex items-center justify-center w-10 h-10">
-                    <svg id="sun-icon" class="w-6 h-6 hidden text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
-                    </svg>
-                    <svg id="moon-icon" class="w-6 h-6 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                    </svg>
-                </button>
+                <button id="theme-toggle" class="p-2 rounded-full card w-10 h-10 flex items-center justify-center">🌓</button>
             </div>
         </div>
         <div class="mt-4 flex items-center gap-2">
-            <span class="text-sm opacity-70 font-medium">查看日期：</span>
-            <input type="date" id="date-picker" class="p-2 rounded-lg text-sm font-bold shadow-sm border border-blue-200">
+            <span class="text-sm font-bold">日期：</span>
+            <input type="date" id="date-picker" class="p-2 rounded-lg text-sm font-bold border-blue-200 shadow-sm">
         </div>
     </header>
 
     <main class="max-w-2xl mx-auto space-y-6">
+        <!-- 平台收入 -->
         <section class="card p-4 rounded-xl shadow-sm">
-            <h2 class="font-bold mb-4 flex items-center gap-2 text-blue-500">
-                <span>📱 平台收入</span>
-            </h2>
+            <h2 class="font-bold mb-4 text-blue-500 flex items-center gap-2">📱 平台收入</h2>
             <div class="grid grid-cols-2 gap-3">
-                <div class="space-y-1">
-                    <label class="text-[10px] uppercase tracking-wider opacity-60 ml-1">Uber</label>
-                    <input type="number" id="input-uber" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0">
+                <div>
+                    <label class="text-[10px] opacity-50 ml-1">UBER</label>
+                    <input type="number" id="input-uber" class="w-full p-2 rounded-lg text-lg font-bold" placeholder="0">
                 </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] uppercase tracking-wider opacity-60 ml-1">高德</label>
-                    <input type="number" id="input-gaode" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0">
+                <div>
+                    <label class="text-[10px] opacity-50 ml-1">高德</label>
+                    <input type="number" id="input-gaode" class="w-full p-2 rounded-lg text-lg font-bold" placeholder="0">
                 </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] uppercase tracking-wider opacity-60 ml-1">滴滴 (DiDi)</label>
-                    <input type="number" id="input-didi" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0">
+                <div>
+                    <label class="text-[10px] opacity-50 ml-1">滴滴</label>
+                    <input type="number" id="input-didi" class="w-full p-2 rounded-lg text-lg font-bold" placeholder="0">
                 </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] uppercase tracking-wider opacity-60 ml-1">Dash</label>
-                    <input type="number" id="input-dash" class="w-full p-2.5 rounded-lg text-lg font-medium" placeholder="0">
+                <div>
+                    <label class="text-[10px] opacity-50 ml-1">DASH</label>
+                    <input type="number" id="input-dash" class="w-full p-2 rounded-lg text-lg font-bold" placeholder="0">
                 </div>
             </div>
         </section>
 
+        <!-- 其他收入 -->
         <section class="card p-4 rounded-xl shadow-sm">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="font-bold text-blue-500">➕ 其他收入 (街車/預約)</h2>
-                <button id="add-income-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">+ 新增</button>
+                <h2 class="font-bold text-blue-600">➕ 街車/預約</h2>
+                <button onclick="addItem('incomes')" class="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs font-bold">+ 新增</button>
             </div>
-            <div id="income-list" class="scroll-list space-y-3"></div>
+            <div id="income-list" class="scroll-list space-y-2"></div>
         </section>
 
+        <!-- 支出 -->
         <section class="card p-4 rounded-xl shadow-sm">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="font-bold text-red-500">➖ 支出紀錄</h2>
-                <button id="add-expense-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">+ 新增</button>
+                <button onclick="addItem('expenses')" class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold">+ 新增</button>
             </div>
-            <div id="expense-list" class="scroll-list space-y-3"></div>
+            <div id="expense-list" class="scroll-list space-y-2"></div>
         </section>
 
+        <!-- 總結 -->
         <section class="card rounded-2xl shadow-lg overflow-hidden border-t-4 border-t-green-500">
-            <div class="flex border-b border-gray-100 dark:border-gray-800">
-                <button onclick="switchTab(1)" id="tab-btn-1" class="flex-1 py-3 text-sm font-bold tab-active">今日總結</button>
-                <button onclick="switchTab(2)" id="tab-btn-2" class="flex-1 py-3 text-sm font-bold opacity-50">本週統計</button>
-                <button onclick="switchTab(3)" id="tab-btn-3" class="flex-1 py-3 text-sm font-bold opacity-50">本月統計</button>
+            <div class="flex border-b dark:border-gray-800 text-center">
+                <button onclick="switchTab(1)" id="tab-1" class="flex-1 py-3 text-xs font-bold tab-active">今日</button>
+                <button onclick="switchTab(2)" id="tab-2" class="flex-1 py-3 text-xs font-bold opacity-50">本週</button>
+                <button onclick="switchTab(3)" id="tab-3" class="flex-1 py-3 text-xs font-bold opacity-50">本月</button>
             </div>
-
             <div class="p-6">
-                <div id="page-1" class="space-y-4">
+                <div id="page-1">
                     <div class="text-center">
-                        <h2 id="summary-date-label" class="text-sm uppercase tracking-widest opacity-60 mb-1">今日預計純利</h2>
-                        <div id="total-profit" class="text-5xl font-black text-green-500 my-2">$ 0.00</div>
+                        <p id="label-date" class="text-[10px] uppercase opacity-50 font-bold mb-1">預計純利</p>
+                        <h2 id="total-profit" class="text-4xl font-black">$ 0.00</h2>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 mt-6 border-t border-gray-50 dark:border-gray-800 pt-4 text-center">
-                        <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl">
-                            <p class="text-[10px] uppercase opacity-60 mb-1">總收入</p>
-                            <p id="summary-income" class="text-xl font-bold text-blue-600">$ 0</p>
+                    <div class="grid grid-cols-2 gap-4 mt-6">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl text-center">
+                            <p class="text-[10px] opacity-50">總收入</p>
+                            <p id="sum-inc" class="text-lg font-bold text-blue-600">$ 0</p>
                         </div>
-                        <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-xl">
-                            <p class="text-[10px] uppercase opacity-60 mb-1">總支出</p>
-                            <p id="summary-expense" class="text-xl font-bold text-red-600">$ 0</p>
+                        <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-xl text-center">
+                            <p class="text-[10px] opacity-50">總支出</p>
+                            <p id="sum-exp" class="text-lg font-bold text-red-600">$ 0</p>
                         </div>
                     </div>
                 </div>
-
-                <div id="page-2" class="hidden space-y-4">
-                    <h3 class="text-center font-bold text-gray-400 text-xs uppercase tracking-widest">本週每日純利總計</h3>
-                    <div id="week-list" class="space-y-2"></div>
-                    <div class="border-t border-gray-100 dark:border-gray-800 pt-4 mt-4 flex justify-between items-center px-2">
-                        <span class="font-bold">該週總純利</span>
-                        <span id="week-total" class="text-2xl font-black text-blue-500">$ 0</span>
-                    </div>
-                </div>
-
-                <div id="page-3" class="hidden space-y-4">
-                    <h3 class="text-center font-bold text-gray-400 text-xs uppercase tracking-widest">本月每週趨勢</h3>
-                    <div id="month-list" class="space-y-2"></div>
-                    <div class="border-t border-gray-100 dark:border-gray-800 pt-4 mt-4 flex justify-between items-center px-2">
-                        <span class="font-bold">該月總純利</span>
-                        <span id="month-total" class="text-2xl font-black text-purple-500">$ 0</span>
-                    </div>
-                </div>
+                <div id="page-2" class="hidden space-y-2"></div>
+                <div id="page-3" class="hidden space-y-2"></div>
             </div>
         </section>
     </main>
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm opacity-0 pointer-events-none transition-opacity z-50"></div>
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-xs opacity-0 transition-opacity z-50"></div>
 
     <script>
-        // 初始化狀態
-        let appState = {
-            isDarkMode: false,
-            dataByDate: {} 
+        let appState = { isDarkMode: false, data: {} };
+        let curDay = new Date().toISOString().split('T')[0];
+
+        const els = {
+            picker: document.getElementById('date-picker'),
+            uber: document.getElementById('input-uber'),
+            gaode: document.getElementById('input-gaode'),
+            didi: document.getElementById('input-didi'),
+            dash: document.getElementById('input-dash'),
+            incList: document.getElementById('income-list'),
+            expList: document.getElementById('expense-list'),
+            profit: document.getElementById('total-profit'),
+            headProfit: document.getElementById('header-profit'),
+            sumInc: document.getElementById('sum-inc'),
+            sumExp: document.getElementById('sum-exp')
         };
-        
-        let currentDate = new Date().toISOString().split('T')[0];
 
-        // 綁定 DOM
-        const themeToggle = document.getElementById('theme-toggle');
-        const sunIcon = document.getElementById('sun-icon');
-        const moonIcon = document.getElementById('moon-icon');
-        const datePicker = document.getElementById('date-picker');
-        
-        const inputUber = document.getElementById('input-uber');
-        const inputGaode = document.getElementById('input-gaode');
-        const inputDidi = document.getElementById('input-didi');
-        const inputDash = document.getElementById('input-dash');
-
-        // 主邏輯
         function init() {
-            loadFromLocalStorage();
-            datePicker.value = currentDate;
+            const saved = localStorage.getItem('taxi_data_v1.6.2');
+            if (saved) appState = JSON.parse(saved);
             
-            // 綁定事件
-            datePicker.onchange = changeDate;
-            inputUber.oninput = saveData;
-            inputGaode.oninput = saveData;
-            inputDidi.oninput = saveData;
-            inputDash.oninput = saveData;
-            
-            document.getElementById('add-income-btn').onclick = () => addItem('income');
-            document.getElementById('add-expense-btn').onclick = () => addItem('expense');
-            
-            themeToggle.onclick = () => {
-                appState.isDarkMode = !appState.isDarkMode;
-                applyTheme();
-                saveToLocalStorage();
-            };
-
+            els.picker.value = curDay;
             applyTheme();
-            changeDate();
+            renderDay();
+
+            // 事件綁定
+            els.picker.onchange = (e) => { curDay = e.target.value; renderDay(); };
+            els.uber.oninput = () => updatePlatform();
+            els.gaode.oninput = () => updatePlatform();
+            els.didi.oninput = () => updatePlatform();
+            els.dash.oninput = () => updatePlatform();
+            document.getElementById('theme-toggle').onclick = toggleTheme;
+        }
+
+        function toggleTheme() {
+            appState.isDarkMode = !appState.isDarkMode;
+            applyTheme();
+            save();
         }
 
         function applyTheme() {
-            if (appState.isDarkMode) {
-                document.documentElement.classList.add('dark');
-                sunIcon.classList.remove('hidden');
-                moonIcon.classList.add('hidden');
-            } else {
-                document.documentElement.classList.remove('dark');
-                sunIcon.classList.add('hidden');
-                moonIcon.classList.remove('hidden');
+            document.documentElement.classList.toggle('dark', appState.isDarkMode);
+        }
+
+        function ensureDay() {
+            if (!appState.data[curDay]) {
+                appState.data[curDay] = { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
             }
         }
 
-        function changeDate() {
-            currentDate = datePicker.value;
-            
-            // 確保該日期有資料結構
-            if (!appState.dataByDate[currentDate]) {
-                appState.dataByDate[currentDate] = { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
-            }
-            
-            const dayData = appState.dataByDate[currentDate];
-            
-            // 更新輸入框值
-            inputUber.value = dayData.uber || "";
-            inputGaode.value = dayData.gaode || "";
-            inputDidi.value = dayData.didi || "";
-            inputDash.value = dayData.dash || "";
-            
-            const todayStr = new Date().toISOString().split('T')[0];
-            document.getElementById('summary-date-label').innerText = (currentDate === todayStr) ? "今日預計純利" : `${currentDate} 預計純利`;
-            
-            renderLists();
+        function renderDay() {
+            ensureDay();
+            const d = appState.data[curDay];
+            els.uber.value = d.uber || "";
+            els.gaode.value = d.gaode || "";
+            els.didi.value = d.didi || "";
+            els.dash.value = d.dash || "";
+            renderIncomes();
+            renderExpenses();
             calculate();
         }
 
-        function saveData() {
-            if (!appState.dataByDate[currentDate]) {
-                appState.dataByDate[currentDate] = { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
-            }
-            const dayData = appState.dataByDate[currentDate];
-            dayData.uber = parseFloat(inputUber.value) || 0;
-            dayData.gaode = parseFloat(inputGaode.value) || 0;
-            dayData.didi = parseFloat(inputDidi.value) || 0;
-            dayData.dash = parseFloat(inputDash.value) || 0;
-            
+        function updatePlatform() {
+            ensureDay();
+            appState.data[curDay].uber = parseFloat(els.uber.value) || 0;
+            appState.data[curDay].gaode = parseFloat(els.gaode.value) || 0;
+            appState.data[curDay].didi = parseFloat(els.didi.value) || 0;
+            appState.data[curDay].dash = parseFloat(els.dash.value) || 0;
             calculate();
-            saveToLocalStorage();
-        }
-
-        function calculate() {
-            const dayData = appState.dataByDate[currentDate] || { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
-            
-            const platformTotal = (dayData.uber || 0) + (dayData.gaode || 0) + (dayData.didi || 0) + (dayData.dash || 0);
-            const otherIncomeTotal = (dayData.incomes || []).reduce((sum, item) => sum + (item.amount || 0), 0);
-            const totalExpense = (dayData.expenses || []).reduce((sum, item) => sum + (item.amount || 0), 0);
-            
-            const totalIncome = platformTotal + otherIncomeTotal;
-            const netProfit = totalIncome - totalExpense;
-
-            const profitEl = document.getElementById('total-profit');
-            const headerProfitEl = document.getElementById('header-profit');
-            
-            profitEl.innerText = `$ ${netProfit.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            headerProfitEl.innerText = `$${Math.floor(netProfit).toLocaleString()}`;
-            document.getElementById('summary-income').innerText = `$ ${totalIncome.toLocaleString()}`;
-            document.getElementById('summary-expense').innerText = `$ ${totalExpense.toLocaleString()}`;
-            
-            profitEl.className = netProfit < 0 ? 'text-5xl font-black text-red-500 my-2' : 'text-5xl font-black text-green-500 my-2';
-
-            renderStats();
+            save();
         }
 
         function addItem(type) {
-            const newItem = type === 'income' 
-                ? { from: '', to: '', amount: 0, id: Date.now() }
-                : { category: '隧道', amount: 0, id: Date.now() };
-            
-            appState.dataByDate[currentDate][type === 'income' ? 'incomes' : 'expenses'].unshift(newItem); 
-            renderLists();
+            ensureDay();
+            const item = type === 'incomes' 
+                ? { id: Date.now(), from: '', to: '', amount: 0 }
+                : { id: Date.now(), category: '隧道', amount: 0 };
+            appState.data[curDay][type].unshift(item);
+            type === 'incomes' ? renderIncomes() : renderExpenses();
             calculate();
-            saveToLocalStorage();
+            save();
         }
 
         function removeItem(type, id) {
-            const dayData = appState.dataByDate[currentDate];
-            const listKey = type === 'income' ? 'incomes' : 'expenses';
-            dayData[listKey] = dayData[listKey].filter(item => item.id !== id);
-            renderLists();
+            appState.data[curDay][type] = appState.data[curDay][type].filter(i => i.id !== id);
+            type === 'incomes' ? renderIncomes() : renderExpenses();
             calculate();
-            saveToLocalStorage();
+            save();
         }
 
-        function updateItem(type, id, field, value) {
-            const listKey = type === 'income' ? 'incomes' : 'expenses';
-            const item = appState.dataByDate[currentDate][listKey].find(i => i.id === id);
+        function updateItem(type, id, key, val) {
+            const item = appState.data[curDay][type].find(i => i.id === id);
             if (item) {
-                item[field] = field === 'amount' ? parseFloat(value) || 0 : value;
+                item[key] = (key === 'amount') ? (parseFloat(val) || 0) : val;
                 calculate();
-                saveToLocalStorage();
+                save();
             }
         }
 
-        async function getAddress(id, field) {
-            const btn = document.getElementById(`gps-${id}-${field}`);
-            const originalIcon = btn.innerHTML;
-            btn.innerHTML = `<svg class="w-4 h-4 loading-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
-            
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                try {
-                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`, {
-                        headers: { 'Accept-Language': 'zh-HK' }
-                    });
-                    const data = await response.json();
-                    const addr = data.address;
-                    const houseNumber = addr.house_number || "";
-                    const road = addr.road || addr.pedestrian || addr.suburb || addr.city || "位置不明";
-                    const fullAddress = houseNumber ? `${road}${houseNumber}號` : road;
-                    
-                    const input = document.getElementById(`input-${id}-${field}`);
-                    input.value = fullAddress;
-                    updateItem('income', id, field, fullAddress);
-                    showToast(`📍 ${fullAddress}`);
-                } catch (e) { showToast("定位失敗"); } 
-                finally { btn.innerHTML = originalIcon; }
-            }, () => {
-                showToast("權限被拒絕");
-                btn.innerHTML = originalIcon;
-            }, { timeout: 10000, enableHighAccuracy: true });
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 2000);
-        }
-
-        function renderLists() {
-            const dayData = appState.dataByDate[currentDate] || { incomes: [], expenses: [] };
-            const incC = document.getElementById('income-list');
-            const expC = document.getElementById('expense-list');
-
-            incC.innerHTML = (dayData.incomes || []).map(item => `
-                <div class="space-y-2 pb-3 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                    <div class="flex gap-2 items-center">
-                        <div class="relative flex-1">
-                            <input id="input-${item.id}-from" type="text" placeholder="起點" value="${item.from}" 
-                                oninput="updateItem('income', ${item.id}, 'from', this.value)"
-                                class="w-full p-2 pr-8 text-sm rounded-lg min-w-0">
-                            <button id="gps-${item.id}-from" onclick="getAddress(${item.id}, 'from')" class="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-md gps-btn text-[10px]">📍</button>
-                        </div>
-                        <div class="relative flex-1">
-                            <input id="input-${item.id}-to" type="text" placeholder="終點" value="${item.to}" 
-                                oninput="updateItem('income', ${item.id}, 'to', this.value)"
-                                class="w-full p-2 pr-8 text-sm rounded-lg min-w-0">
-                            <button id="gps-${item.id}-to" onclick="getAddress(${item.id}, 'to')" class="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-md gps-btn text-[10px]">📍</button>
-                        </div>
-                        <input type="number" placeholder="$" value="${item.amount || ''}" 
-                            oninput="updateItem('income', ${item.id}, 'amount', this.value)"
-                            class="w-16 p-2 text-sm rounded-lg">
-                        <button onclick="removeItem('income', ${item.id})" class="text-gray-400 p-1">✕</button>
+        function renderIncomes() {
+            const list = appState.data[curDay].incomes;
+            els.incList.innerHTML = list.map(i => `
+                <div class="flex gap-1 items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+                    <div class="relative flex-1">
+                        <input type="text" placeholder="起點" value="${i.from}" oninput="updateItem('incomes', ${i.id}, 'from', this.value)" class="w-full p-1.5 text-xs rounded border-none">
+                        <button onclick="gps(${i.id}, 'from')" class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px]">📍</button>
                     </div>
+                    <div class="relative flex-1">
+                        <input type="text" placeholder="終點" value="${i.to}" oninput="updateItem('incomes', ${i.id}, 'to', this.value)" class="w-full p-1.5 text-xs rounded border-none">
+                        <button onclick="gps(${i.id}, 'to')" class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px]">📍</button>
+                    </div>
+                    <input type="number" placeholder="$" value="${i.amount || ''}" oninput="updateItem('incomes', ${i.id}, 'amount', this.value)" class="w-12 p-1.5 text-xs rounded border-none font-bold">
+                    <button onclick="removeItem('incomes', ${i.id})" class="px-1 text-gray-400">✕</button>
                 </div>
-            `
+            `).join('');
+        }
+
+        function renderExpenses() {
+            const list = appState.data[curDay].expenses;
+            els.expList.innerHTML = list.map(i => `
+                <div class="flex gap-2 items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+                    <select onchange="updateItem('expenses', ${i.id}, 'category', this.value)" class="flex-1 p-1.5 text-xs rounded border-none">
+                        <option ${i.category==='隧道'?'selected':''}>隧道</option>
+                        <option ${i.category==='氣/電'?'selected':''}>氣/電</option>
+                        <option ${i.category==='租金'?'selected':''}>租金</option>
+                        <option ${i.category==='抄牌'?'selected':''}>抄牌</option>
+                        <option ${i.category==='其他'?'selected':''}>其他</option>
+                    </select>
+                    <input type="number" placeholder="$" value="${i.amount || ''}" oninput="updateItem('expenses', ${i.id}, 'amount', this.value)" class="w-20 p-1.5 text-xs rounded border-none font-bold">
+                    <button onclick="removeItem('expenses', ${i.id})" class="px-1 text-gray-400">✕</button>
+                </div>
+            `).join('');
+        }
+
+        async function gps(id, field) {
+            showToast("正在定位街道及門牌...");
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&addressdetails=1`, { headers: { 'Accept-Language': 'zh-HK' } });
+                    const d = await res.json();
+                    const addr = d.address;
+                    const street = addr.road || addr.pedestrian || "未知街道";
+                    const num = addr.house_number ? addr.house_number + "號" : "";
+                    const full = street + num;
+                    updateItem('incomes', id, field, full);
+                    renderIncomes();
+                    showToast("📍 " + full);
+                } catch (e) { showToast("地址解析失敗"); }
+            }, () => showToast("無法獲取位置"), { enableHighAccuracy: true });
+        }
+
+        function calculate() {
+            const d = appState.data[curDay] || { uber:0, gaode:0, didi:0, dash:0, incomes:[], expenses:[] };
+            const pSum = (d.uber||0) + (d.gaode||0) + (d.didi||0) + (d.dash||0);
+            const iSum = (d.incomes||[]).reduce((a, b) => a + (b.amount||0), 0);
+            const eSum = (d.expenses||[]).reduce((a, b) => a + (b.amount||0), 0);
+            
+            const totalIn = pSum + iSum;
+            const net = totalIn - eSum;
+
+            els.profit.innerText = `$ ${net.toFixed(2)}`;
+            els.profit.className = `text-4xl font-black ${net < 0 ? 'text-red-500' : 'text-green-500'}`;
+            els.headProfit.innerText = `$${Math.floor(net)}`;
+            els.sumInc.innerText = `$ ${totalIn}`;
+            els.sumExp.innerText = `$ ${eSum}`;
+            
+            renderStats();
+        }
+
+        function renderStats() {
+            // 本週簡單統計
+            const weekP = document.getElementById('page-2');
+            let html = '<div class="text-[10px] font-bold opacity-40 mb-2">本週純利</div>';
+            let weekTotal = 0;
+            const now = new Date(curDay);
+            for(let i=0; i<7; i++) {
+                const day = new Date(now);
+                day.setDate(now.getDate() - i);
+                const dStr = day.toISOString().split('T')[0];
+                const profit = getProfitByDate(dStr);
+                weekTotal += profit;
+                html += `<div class="flex justify-between text-xs py-1 border-b dark:border-gray-800">
+                    <span>${dStr}</span>
+                    <span class="font-bold ${profit<0?'text-red-500':'text-green-500'}">$${profit}</span>
+                </div>`;
+            }
+            weekP.innerHTML = html + `<div class="pt-2 text-right font-black text-blue-500">週總計: $${weekTotal}</div>`;
+        }
+
+        function getProfitByDate(date) {
+            const d = appState.data[date];
+            if(!d) return 0;
+            const inc = (d.uber||0)+(d.gaode||0)+(d.didi||0)+(d.dash||0)+d.incomes.reduce((a,b)=>a+(b.amount||0),0);
+            const exp = d.expenses.reduce((a,b)=>a+(b.amount||0),0);
+            return inc - exp;
+        }
+
+        function switchTab(n) {
+            [1,2,3].forEach(i => {
+                document.getElementById('page-'+i).classList.toggle('hidden', i!==n);
+                document.getElementById('tab-'+i).classList.toggle('tab-active', i===n);
+                document.getElementById('tab-'+i).classList.toggle('opacity-50', i!==n);
+            });
+        }
+
+        function showToast(m) {
+            const t = document.getElementById('toast');
+            t.innerText = m; t.style.opacity = 1;
+            setTimeout(() => t.style.opacity = 0, 2000);
+        }
+
+        function save() {
+            localStorage.setItem('taxi_data_v1.6.2', JSON.stringify(appState));
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
+```
