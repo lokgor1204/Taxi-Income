@@ -1,331 +1,293 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>的士助手 v1.6.2</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>的士收入紀錄</title>
     <style>
-        :root { --bg-color: #f3f4f6; --card-bg: #ffffff; --text-color: #1f2937; --border-color: #e5e7eb; }
-        .dark { --bg-color: #111827; --card-bg: #1f2937; --text-color: #f3f4f6; --border-color: #374151; }
-        body { background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s; font-family: system-ui; -webkit-tap-highlight-color: transparent; }
-        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); }
-        input, select { background-color: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); outline: none; }
-        .tab-active { color: #3b82f6; border-bottom: 2px solid #3b82f6; }
-        .scroll-list { max-height: 180px; overflow-y: auto; }
-        .loading-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        :root {
+            --bg-color: #f4f4f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --primary-color: #2ecc71;
+            --accent-color: #3498db;
+            --danger-color: #e74c3c;
+            --border-color: #dddddd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-main: #f0f0f0;
+            --primary-color: #27ae60;
+            --border-color: #444444;
+        }
+
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 15px;
+            padding-bottom: 90px;
+            transition: 0.3s;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background: var(--bg-color);
+            z-index: 100;
+            padding: 5px 0;
+            gap: 10px;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+        
+        #carPlateInput {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 5px 8px;
+            border-radius: 5px;
+            width: 90px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .profit-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 38px;
+            height: 38px;
+        }
+
+        h3 { margin: 15px 0 10px 0; font-size: 1rem; color: var(--accent-color); }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        label { display: block; font-size: 0.8rem; margin-bottom: 5px; opacity: 0.8; }
+        input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .record-card {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 5px solid var(--accent-color);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .expense-card { border-left-color: var(--danger-color); }
+        .record-card input { font-size: 0.9rem; font-weight: normal; border-bottom: 1px solid var(--border-color); }
+
+        .btn { border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-add { background: var(--accent-color); color: white; width: 100%; margin-top: 5px; }
+        .btn-del { background: var(--danger-color); color: white; padding: 5px 10px; }
+
+        .footer-info {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid var(--primary-color);
+            font-weight: bold;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .footer-plate { color: var(--accent-color); font-size: 0.9rem; }
+        .footer-total { font-size: 1.2rem; }
     </style>
 </head>
-<body class="min-h-screen p-4 pb-24">
-    <header class="max-w-2xl mx-auto mb-6">
-        <div class="flex justify-between items-center">
-            <h1 class="text-xl font-bold">的士助手 <span class="text-xs font-normal opacity-50">v1.6.2</span></h1>
-            <div class="flex items-center gap-4">
-                <div class="text-right">
-                    <span class="text-[10px] opacity-60 block">今日純利</span>
-                    <span id="header-profit" class="text-xl font-black text-green-500">$0</span>
-                </div>
-                <button id="theme-toggle" class="p-2 rounded-full card w-10 h-10 flex items-center justify-center">🌓</button>
-            </div>
-        </div>
-        <div class="mt-4 flex items-center gap-2">
-            <span class="text-sm font-bold">日期：</span>
-            <input type="date" id="date-picker" class="p-2 rounded-lg text-sm font-bold border-blue-200 shadow-sm">
-        </div>
-    </header>
+<body>
 
-    <main class="max-w-2xl mx-auto space-y-6">
-        <!-- 平台收入 -->
-        <section class="card p-4 rounded-xl shadow-sm">
-            <h2 class="font-bold mb-4 text-blue-500 flex items-center gap-2">📱 平台收入</h2>
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-[10px] opacity-50 ml-1">UBER</label>
-                    <input type="number" id="input-uber" class="w-full p-2 rounded-lg text-lg font-bold" placeholder="0">
-                </div>
-                <div>
-                    <label class="text-[10px] opacity-50 ml-1">高德</label>
-                    <input type="number" id="input-gaode" class="w-full p-2 rounded-lg text-lg font-bold" placeholder="0">
-                </div>
-                <div>
-                    <label class="text-[10px] opacity-50 ml-1">滴滴</label>
-                    <input type="number" id="input-didi" class="w-full p-2 rounded-lg text-lg font-bold" placeholder="0">
-                </div>
-                <div>
-                    <label class="text-[10px] opacity-50 ml-1">DASH</label>
-                    <input type="number" id="input-dash" class="w-full p-2 rounded-lg text-lg font-bold" placeholder="0">
-                </div>
-            </div>
-        </section>
+<header>
+    <div class="header-left">
+        <h2 style="margin:0; font-size: 1.2rem;">紀錄</h2>
+        <input type="text" id="carPlateInput" placeholder="車牌" oninput="updatePlateDisplay()">
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <div id="topProfit" class="profit-badge">$ 0</div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+    </div>
+</header>
 
-        <!-- 其他收入 -->
-        <section class="card p-4 rounded-xl shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="font-bold text-blue-600">➕ 街車/預約</h2>
-                <button onclick="addItem('incomes')" class="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs font-bold">+ 新增</button>
-            </div>
-            <div id="income-list" class="scroll-list space-y-2"></div>
-        </section>
+<h3>平台收入</h3>
+<div class="platform-grid">
+    <div class="input-group"><label>Uber</label><input type="number" id="p-uber" placeholder="0"></div>
+    <div class="input-group"><label>高德</label><input type="number" id="p-amap" placeholder="0"></div>
+    <div class="input-group"><label>滴滴</label><input type="number" id="p-didi" placeholder="0"></div>
+    <div class="input-group"><label>Dash</label><input type="number" id="p-dash" placeholder="0"></div>
+</div>
 
-        <!-- 支出 -->
-        <section class="card p-4 rounded-xl shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="font-bold text-red-500">➖ 支出紀錄</h2>
-                <button onclick="addItem('expenses')" class="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold">+ 新增</button>
-            </div>
-            <div id="expense-list" class="scroll-list space-y-2"></div>
-        </section>
+<h3>其他收入 (行程)</h3>
+<div id="otherIncomeList"></div>
+<button class="btn btn-add" onclick="addRow('otherIncomeList')">+ 新增行程</button>
 
-        <!-- 總結 -->
-        <section class="card rounded-2xl shadow-lg overflow-hidden border-t-4 border-t-green-500">
-            <div class="flex border-b dark:border-gray-800 text-center">
-                <button onclick="switchTab(1)" id="tab-1" class="flex-1 py-3 text-xs font-bold tab-active">今日</button>
-                <button onclick="switchTab(2)" id="tab-2" class="flex-1 py-3 text-xs font-bold opacity-50">本週</button>
-                <button onclick="switchTab(3)" id="tab-3" class="flex-1 py-3 text-xs font-bold opacity-50">本月</button>
-            </div>
-            <div class="p-6">
-                <div id="page-1">
-                    <div class="text-center">
-                        <p id="label-date" class="text-[10px] uppercase opacity-50 font-bold mb-1">預計純利</p>
-                        <h2 id="total-profit" class="text-4xl font-black">$ 0.00</h2>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mt-6">
-                        <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl text-center">
-                            <p class="text-[10px] opacity-50">總收入</p>
-                            <p id="sum-inc" class="text-lg font-bold text-blue-600">$ 0</p>
-                        </div>
-                        <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-xl text-center">
-                            <p class="text-[10px] opacity-50">總支出</p>
-                            <p id="sum-exp" class="text-lg font-bold text-red-600">$ 0</p>
-                        </div>
-                    </div>
-                </div>
-                <div id="page-2" class="hidden space-y-2"></div>
-                <div id="page-3" class="hidden space-y-2"></div>
-            </div>
-        </section>
-    </main>
+<h3>支出紀錄</h3>
+<div id="expenseList"></div>
+<button class="btn btn-add" style="background: #95a5a6;" onclick="addRow('expenseList')">+ 新增支出項目</button>
 
-    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-xs opacity-0 transition-opacity z-50"></div>
+<div class="footer-info">
+    <div class="footer-plate">車牌: <span id="displayPlate">---</span></div>
+    <div class="footer-total">純利: <span id="totalProfit" style="color: var(--primary-color);">$ 0</span></div>
+</div>
 
-    <script>
-        let appState = { isDarkMode: false, data: {} };
-        let curDay = new Date().toISOString().split('T')[0];
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+        if(localStorage.getItem('theme') === 'dark') toggleTheme(true);
+        calculate();
+    });
 
-        const els = {
-            picker: document.getElementById('date-picker'),
-            uber: document.getElementById('input-uber'),
-            gaode: document.getElementById('input-gaode'),
-            didi: document.getElementById('input-didi'),
-            dash: document.getElementById('input-dash'),
-            incList: document.getElementById('income-list'),
-            expList: document.getElementById('expense-list'),
-            profit: document.getElementById('total-profit'),
-            headProfit: document.getElementById('header-profit'),
-            sumInc: document.getElementById('sum-inc'),
-            sumExp: document.getElementById('sum-exp')
+    function updatePlateDisplay() {
+        const val = document.getElementById('carPlateInput').value;
+        document.getElementById('displayPlate').innerText = val || "---";
+        saveData();
+    }
+
+    function addRow(containerId, data = {val1: '', val2: '', price: ''}) {
+        const container = document.getElementById(containerId);
+        const div = document.createElement('div');
+        div.className = `record-card ${containerId === 'expenseList' ? 'expense-card' : ''}`;
+        
+        if(containerId === 'otherIncomeList') {
+            div.innerHTML = `
+                <input type="text" placeholder="起點" value="${data.val1}" oninput="saveData()">
+                <input type="text" placeholder="終點" value="${data.val2}" oninput="saveData()">
+                <input type="number" placeholder="價錢" value="${data.price}" style="width: 70px" oninput="calculate()">
+                <button class="btn btn-del" onclick="this.parentElement.remove(); calculate();">✕</button>
+            `;
+        } else {
+            div.innerHTML = `
+                <input type="text" placeholder="項目" value="${data.val1}" style="flex:2" oninput="saveData()">
+                <input type="number" placeholder="金額" value="${data.price}" style="flex:1" oninput="calculate()">
+                <button class="btn btn-del" onclick="this.parentElement.remove(); calculate();">✕</button>
+            `;
+        }
+        container.appendChild(div);
+        calculate();
+    }
+
+    function calculate() {
+        let total = 0;
+        total += Number(document.getElementById('p-uber').value) || 0;
+        total += Number(document.getElementById('p-amap').value) || 0;
+        total += Number(document.getElementById('p-didi').value) || 0;
+        total += Number(document.getElementById('p-dash').value) || 0;
+
+        document.querySelectorAll('#otherIncomeList input[type="number"]').forEach(input => total += Number(input.value) || 0);
+        document.querySelectorAll('#expenseList input[type="number"]').forEach(input => total -= Number(input.value) || 0);
+
+        const formatted = `$ ${total}`;
+        document.getElementById('totalProfit').innerText = formatted;
+        document.getElementById('topProfit').innerText = formatted;
+        saveData();
+    }
+
+    function saveData() {
+        const data = {
+            carPlate: document.getElementById('carPlateInput').value,
+            platforms: {
+                uber: document.getElementById('p-uber').value,
+                amap: document.getElementById('p-amap').value,
+                didi: document.getElementById('p-didi').value,
+                dash: document.getElementById('p-dash').value,
+            },
+            otherIncomes: Array.from(document.querySelectorAll('#otherIncomeList .record-card')).map(el => ({
+                val1: el.querySelectorAll('input')[0].value,
+                val2: el.querySelectorAll('input')[1].value,
+                price: el.querySelectorAll('input')[2].value
+            })),
+            expenses: Array.from(document.querySelectorAll('#expenseList .record-card')).map(el => ({
+                val1: el.querySelectorAll('input')[0].value,
+                price: el.querySelectorAll('input')[1].value
+            }))
         };
+        localStorage.setItem('taxi_data_v2', JSON.stringify(data));
+    }
 
-        function init() {
-            const saved = localStorage.getItem('taxi_data_v1.6.2');
-            if (saved) appState = JSON.parse(saved);
-            
-            els.picker.value = curDay;
-            applyTheme();
-            renderDay();
+    function loadData() {
+        const saved = localStorage.getItem('taxi_data_v2');
+        if(!saved) return;
+        const data = JSON.parse(saved);
+        
+        document.getElementById('carPlateInput').value = data.carPlate || "";
+        updatePlateDisplay();
 
-            // 事件綁定
-            els.picker.onchange = (e) => { curDay = e.target.value; renderDay(); };
-            els.uber.oninput = () => updatePlatform();
-            els.gaode.oninput = () => updatePlatform();
-            els.didi.oninput = () => updatePlatform();
-            els.dash.oninput = () => updatePlatform();
-            document.getElementById('theme-toggle').onclick = toggleTheme;
+        document.getElementById('p-uber').value = data.platforms.uber;
+        document.getElementById('p-amap').value = data.platforms.amap;
+        document.getElementById('p-didi').value = data.platforms.didi;
+        document.getElementById('p-dash').value = data.platforms.dash;
+
+        data.otherIncomes.forEach(item => addRow('otherIncomeList', item));
+        data.expenses.forEach(item => addRow('expenseList', item));
+    }
+
+    function toggleTheme(init = false) {
+        const body = document.body;
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = (currentTheme === 'dark' || (init && localStorage.getItem('theme') !== 'dark')) ? 'light' : 'dark';
+        
+        if(init && localStorage.getItem('theme')) {
+            body.setAttribute('data-theme', localStorage.getItem('theme'));
+        } else {
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         }
+    }
 
-        function toggleTheme() {
-            appState.isDarkMode = !appState.isDarkMode;
-            applyTheme();
-            save();
-        }
+    // 為平台輸入框綁定事件
+    document.querySelectorAll('.platform-grid input').forEach(input => {
+        input.addEventListener('input', calculate);
+    });
+</script>
 
-        function applyTheme() {
-            document.documentElement.classList.toggle('dark', appState.isDarkMode);
-        }
-
-        function ensureDay() {
-            if (!appState.data[curDay]) {
-                appState.data[curDay] = { uber: 0, gaode: 0, didi: 0, dash: 0, incomes: [], expenses: [] };
-            }
-        }
-
-        function renderDay() {
-            ensureDay();
-            const d = appState.data[curDay];
-            els.uber.value = d.uber || "";
-            els.gaode.value = d.gaode || "";
-            els.didi.value = d.didi || "";
-            els.dash.value = d.dash || "";
-            renderIncomes();
-            renderExpenses();
-            calculate();
-        }
-
-        function updatePlatform() {
-            ensureDay();
-            appState.data[curDay].uber = parseFloat(els.uber.value) || 0;
-            appState.data[curDay].gaode = parseFloat(els.gaode.value) || 0;
-            appState.data[curDay].didi = parseFloat(els.didi.value) || 0;
-            appState.data[curDay].dash = parseFloat(els.dash.value) || 0;
-            calculate();
-            save();
-        }
-
-        function addItem(type) {
-            ensureDay();
-            const item = type === 'incomes' 
-                ? { id: Date.now(), from: '', to: '', amount: 0 }
-                : { id: Date.now(), category: '隧道', amount: 0 };
-            appState.data[curDay][type].unshift(item);
-            type === 'incomes' ? renderIncomes() : renderExpenses();
-            calculate();
-            save();
-        }
-
-        function removeItem(type, id) {
-            appState.data[curDay][type] = appState.data[curDay][type].filter(i => i.id !== id);
-            type === 'incomes' ? renderIncomes() : renderExpenses();
-            calculate();
-            save();
-        }
-
-        function updateItem(type, id, key, val) {
-            const item = appState.data[curDay][type].find(i => i.id === id);
-            if (item) {
-                item[key] = (key === 'amount') ? (parseFloat(val) || 0) : val;
-                calculate();
-                save();
-            }
-        }
-
-        function renderIncomes() {
-            const list = appState.data[curDay].incomes;
-            els.incList.innerHTML = list.map(i => `
-                <div class="flex gap-1 items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
-                    <div class="relative flex-1">
-                        <input type="text" placeholder="起點" value="${i.from}" oninput="updateItem('incomes', ${i.id}, 'from', this.value)" class="w-full p-1.5 text-xs rounded border-none">
-                        <button onclick="gps(${i.id}, 'from')" class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px]">📍</button>
-                    </div>
-                    <div class="relative flex-1">
-                        <input type="text" placeholder="終點" value="${i.to}" oninput="updateItem('incomes', ${i.id}, 'to', this.value)" class="w-full p-1.5 text-xs rounded border-none">
-                        <button onclick="gps(${i.id}, 'to')" class="absolute right-1 top-1/2 -translate-y-1/2 text-[10px]">📍</button>
-                    </div>
-                    <input type="number" placeholder="$" value="${i.amount || ''}" oninput="updateItem('incomes', ${i.id}, 'amount', this.value)" class="w-12 p-1.5 text-xs rounded border-none font-bold">
-                    <button onclick="removeItem('incomes', ${i.id})" class="px-1 text-gray-400">✕</button>
-                </div>
-            `).join('');
-        }
-
-        function renderExpenses() {
-            const list = appState.data[curDay].expenses;
-            els.expList.innerHTML = list.map(i => `
-                <div class="flex gap-2 items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
-                    <select onchange="updateItem('expenses', ${i.id}, 'category', this.value)" class="flex-1 p-1.5 text-xs rounded border-none">
-                        <option ${i.category==='隧道'?'selected':''}>隧道</option>
-                        <option ${i.category==='氣/電'?'selected':''}>氣/電</option>
-                        <option ${i.category==='租金'?'selected':''}>租金</option>
-                        <option ${i.category==='抄牌'?'selected':''}>抄牌</option>
-                        <option ${i.category==='其他'?'selected':''}>其他</option>
-                    </select>
-                    <input type="number" placeholder="$" value="${i.amount || ''}" oninput="updateItem('expenses', ${i.id}, 'amount', this.value)" class="w-20 p-1.5 text-xs rounded border-none font-bold">
-                    <button onclick="removeItem('expenses', ${i.id})" class="px-1 text-gray-400">✕</button>
-                </div>
-            `).join('');
-        }
-
-        async function gps(id, field) {
-            showToast("正在定位街道及門牌...");
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&addressdetails=1`, { headers: { 'Accept-Language': 'zh-HK' } });
-                    const d = await res.json();
-                    const addr = d.address;
-                    const street = addr.road || addr.pedestrian || "未知街道";
-                    const num = addr.house_number ? addr.house_number + "號" : "";
-                    const full = street + num;
-                    updateItem('incomes', id, field, full);
-                    renderIncomes();
-                    showToast("📍 " + full);
-                } catch (e) { showToast("地址解析失敗"); }
-            }, () => showToast("無法獲取位置"), { enableHighAccuracy: true });
-        }
-
-        function calculate() {
-            const d = appState.data[curDay] || { uber:0, gaode:0, didi:0, dash:0, incomes:[], expenses:[] };
-            const pSum = (d.uber||0) + (d.gaode||0) + (d.didi||0) + (d.dash||0);
-            const iSum = (d.incomes||[]).reduce((a, b) => a + (b.amount||0), 0);
-            const eSum = (d.expenses||[]).reduce((a, b) => a + (b.amount||0), 0);
-            
-            const totalIn = pSum + iSum;
-            const net = totalIn - eSum;
-
-            els.profit.innerText = `$ ${net.toFixed(2)}`;
-            els.profit.className = `text-4xl font-black ${net < 0 ? 'text-red-500' : 'text-green-500'}`;
-            els.headProfit.innerText = `$${Math.floor(net)}`;
-            els.sumInc.innerText = `$ ${totalIn}`;
-            els.sumExp.innerText = `$ ${eSum}`;
-            
-            renderStats();
-        }
-
-        function renderStats() {
-            // 本週簡單統計
-            const weekP = document.getElementById('page-2');
-            let html = '<div class="text-[10px] font-bold opacity-40 mb-2">本週純利</div>';
-            let weekTotal = 0;
-            const now = new Date(curDay);
-            for(let i=0; i<7; i++) {
-                const day = new Date(now);
-                day.setDate(now.getDate() - i);
-                const dStr = day.toISOString().split('T')[0];
-                const profit = getProfitByDate(dStr);
-                weekTotal += profit;
-                html += `<div class="flex justify-between text-xs py-1 border-b dark:border-gray-800">
-                    <span>${dStr}</span>
-                    <span class="font-bold ${profit<0?'text-red-500':'text-green-500'}">$${profit}</span>
-                </div>`;
-            }
-            weekP.innerHTML = html + `<div class="pt-2 text-right font-black text-blue-500">週總計: $${weekTotal}</div>`;
-        }
-
-        function getProfitByDate(date) {
-            const d = appState.data[date];
-            if(!d) return 0;
-            const inc = (d.uber||0)+(d.gaode||0)+(d.didi||0)+(d.dash||0)+d.incomes.reduce((a,b)=>a+(b.amount||0),0);
-            const exp = d.expenses.reduce((a,b)=>a+(b.amount||0),0);
-            return inc - exp;
-        }
-
-        function switchTab(n) {
-            [1,2,3].forEach(i => {
-                document.getElementById('page-'+i).classList.toggle('hidden', i!==n);
-                document.getElementById('tab-'+i).classList.toggle('tab-active', i===n);
-                document.getElementById('tab-'+i).classList.toggle('opacity-50', i!==n);
-            });
-        }
-
-        function showToast(m) {
-            const t = document.getElementById('toast');
-            t.innerText = m; t.style.opacity = 1;
-            setTimeout(() => t.style.opacity = 0, 2000);
-        }
-
-        function save() {
-            localStorage.setItem('taxi_data_v1.6.2', JSON.stringify(appState));
-        }
-
-        init();
-    </script>
 </body>
 </html>
